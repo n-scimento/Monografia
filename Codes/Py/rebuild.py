@@ -7,9 +7,9 @@ Created on Wed Jul 24 00:22:30 2024
 """
 import pandas as pd 
 from datetime import datetime
-from BMF import real, nominal 
+from bmf import real, nominal 
 
-
+## como que eu rodo a função? aparentemente não está recebendo a data bem
 
 
 date_list = pd.date_range(start = '2005-01-01', end ='2024-04-19') # data range
