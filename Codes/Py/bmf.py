@@ -1,6 +1,6 @@
-import pandas as pd 
+import warnings
+import pandas as pd
 import numpy as np
-import warnings 
 warnings.filterwarnings("ignore")
 
 #%%# Extração Swap Pré x IPCA
@@ -16,7 +16,7 @@ def _real(dt):
     """
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=DIC'
     html = pd.read_html(url, encoding = 'latin1') # read B3 data
-    data = None 
+    data = None
 
     if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
         data_list = [float(taxa) for taxa in list(html[1][0])[0].replace('Dias Corridos DI x IPCA 252(2) ', '').replace('Dias Corridos 252(2) ', '').replace(',', '.').split(' ')] # get data and cleaning it 
@@ -51,7 +51,6 @@ def _nominal(dt):
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=PRE'
     html = pd.read_html(url, encoding = 'latin1') # read B3 data
     data = None 
-
     if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
         data_list = list(html[1][0])[0].replace('Dias Corridos DI x pré 252(2)(4) 360(1) ', '').replace('Dias Corridos PRExDI 252(2)(4) 360(1) ', '').replace(',', '.').split(' ') # get data and cleaning it 
         n = 0 
@@ -93,7 +92,7 @@ def real(start_date, end_date=None):
     
     for dt in date_list:
         dt = dt.strftime('%d/%m/%Y')
-        print(f'Extraindo negociações de Swap Pré X IPCA para o dia {dt}')
+        print(f'Extraindo negociações de Swap DI X IPCA para o dia {dt}')
         
         df_rate = _real(dt) # request data based on date (dt)
         df = df_rate if not len(df) else pd.concat([df, df_rate]) # concat new data to the data frame 
@@ -122,7 +121,7 @@ def nominal(start_date, end_date=None):
     
     for dt in date_list:
         dt = dt.strftime('%d/%m/%Y')
-        print(f'Extraindo negociações de Swap Pré X DI para o dia {dt}')
+        print(f'Extraindo negociações de Swap DI X Pré para o dia {dt}')
         
         df_rate = _nominal(dt) # request data based on date (dt)
         df = df_rate if not len(df) else pd.concat([df, df_rate]) # concat new data to the data frame 
