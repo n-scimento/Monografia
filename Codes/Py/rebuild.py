@@ -41,7 +41,7 @@ df_nominal = pd.concat([df_nominal_hist, df_nominal_update]).drop_duplicates() #
 df_real = pd.concat([df_real_hist, df_real_update]) # concat new data to the data frame 
 
 ## For some reason dates are changing format :/ 
-
+### Database is fine, the problem emerges when getting the new data!!!!! look at the formatting being passed 
 
 pd.DataFrame(df_real.index).to_excel('index_real.xlsx')
 
