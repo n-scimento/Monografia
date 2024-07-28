@@ -33,8 +33,7 @@ def _real(dt):
         if(type(data) != type(None)):
             data = pd.pivot_table(data, values = 'bd252', index = 'Date', columns = ['TenorsDays']).sort_values(by = 'Date') # format new data with pivot table
             data.columns = data.columns.astype('float64') # format columns 
-            data.index = data.index.astype('datetime64[ns]') # format index (rows)
-            
+            data.index = pd.to_datetime(data.index, format='%d/%m/%Y')            
     return data 
 
 #%%# Extração Swap Pré X DI
@@ -62,12 +61,10 @@ def _nominal(dt):
         
         data = pd.DataFrame(data, columns = ['TenorsDays', 'bd252', 'act360']) # data cleaning and formatting
         data['Date'] = [dt for n in range(len(data))]
-        
         if(type(data) != type(None)):
             data = pd.pivot_table(data, values = 'bd252', index = 'Date', columns = ['TenorsDays']).sort_values(by = 'Date') # format new data with pivot table
             data.columns = data.columns.astype('float64') # format columns 
-            data.index = data.index.astype('datetime64[ns]') # format index (rows)
-            
+            data.index = pd.to_datetime(data.index, format='%d/%m/%Y')                        
     return data 
 
 #%%# Solicitação da curva Real para um dia ou para um período
@@ -130,3 +127,36 @@ def nominal(start_date, end_date=None):
 
 #%%# Update da base de dados 
 
+def update():
+    """
+    It updates the swap's database until today, overwriting the used file.
+
+    Returns
+    -------
+    df_nominal : pandas dataframe
+        DI x Pré Swap negotiations 2005-01-01 until today.
+    df_real : pandas dataframe.
+        IPCA x Pré Swap negotiations 2005-01-01 until today.
+
+    """
+    df_real_hist = pd.read_csv(r'./Data/ipca.csv',index_col = 0)
+    df_nominal_hist = pd.read_csv(r'./Data/pre.csv', index_col = 0)
+    
+    df_real_hist.columns = df_real_hist.columns.astype('float64') 
+    df_real_hist.index = df_real_hist.index.astype('datetime64[ns]') 
+    
+    df_nominal_hist.columns = df_nominal_hist.columns.astype('float64') 
+    df_nominal_hist.index = df_nominal_hist.index.astype('datetime64[ns]') 
+    
+    print(f'Atualizando a base de dados de {df_nominal_hist.iloc[-1].name.strftime("%Y-%m-%d")} até {pd.Timestamp.now().date().strftime("%Y-%m-%d")}')
+    df_nominal_update = nominal(df_nominal_hist.iloc[-1].name.strftime('%Y-%m-%d'), pd.Timestamp.now().date().strftime('%Y-%m-%d'))
+    df_real_update = real(df_real_hist.iloc[-1].name.strftime('%Y-%m-%d'), pd.Timestamp.now().date().strftime('%Y-%m-%d'))
+    
+    df_nominal = pd.concat([df_nominal_hist, df_nominal_update]).reset_index().drop_duplicates(subset='Date', keep='first').set_index('Date')
+    df_real = pd.concat([df_real_hist, df_real_update]).reset_index().drop_duplicates(subset='Date', keep='first').set_index('Date')
+    
+    print('Base atualizada! Salvação em andamento.')
+    df_nominal.to_csv(r'./Data/pre.csv')
+    df_real.to_csv(r'./Data/ipca.csv')
+    
+    return df_nominal, df_real
