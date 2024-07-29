@@ -69,7 +69,7 @@ def _nominal(dt):
 
 #%%# Solicitação da curva Real para um dia ou para um período
 
-def real(start_date, end_date=None): 
+def _yield(function, start_date, end_date=None): 
 
     """
     Parameters
@@ -93,14 +93,14 @@ def real(start_date, end_date=None):
         
         df_rate = _real(dt) # request data based on date (dt)
         df = df_rate if not len(df) else pd.concat([df, df_rate]) # concat new data to the data frame 
-        df = df.reindex(columns=sorted(list(df.columns))) # sort columns by tenure 
+        df = df.reindex(columns=sorted(list(df.columns))) if not df.empty else df
     return df 
 
 #%%# Solicitação da curva Nominal para um dia ou para um período
-
+"""
 def nominal(start_date, end_date=None): 
 
-    """
+    
     Parameters
     ----------
     start_date: "yyyy-mm-dd"
@@ -110,7 +110,7 @@ def nominal(start_date, end_date=None):
     Returns
     -------
     data: yield curve for the given date or range
-    """
+    
 
     df = []
     
@@ -122,8 +122,9 @@ def nominal(start_date, end_date=None):
         
         df_rate = _nominal(dt) # request data based on date (dt)
         df = df_rate if not len(df) else pd.concat([df, df_rate]) # concat new data to the data frame 
-        df = df.reindex(columns=sorted(list(df.columns))) # sort columns by tenure 
+        df = df.reindex(columns=sorted(list(df.columns))) if not df.empty else df
     return df
+"""
 
 #%%# Update da base de dados 
 

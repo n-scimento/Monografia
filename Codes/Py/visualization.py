@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
-
-This is a temporary script file.
+Next steps:
+    2D visualization
+    Surface visualization
 """
 #%%# Reading data and setting libraries
 import pandas as pd
@@ -18,9 +18,7 @@ start_date = '2020-01-01'
 end_date = '2023-12-31'
 
 nominal = df_nominal_raw.loc[start_date:end_date]
-
 nominal = nominal.reset_index().rename(columns={'index': 'Date'})
-
 df_long = nominal.melt(id_vars='Date', var_name='Maturity', value_name='Interest')
 
 #%%# Plotting it scattered
@@ -52,43 +50,3 @@ fig.update_layout(scene=dict(
 
 # Show the figure in the browser
 fig.show()
-
-#%%# Plotting it as a surface - we need full data to do it 
-
-pivot_df = df_long.pivot(index='Maturity', columns='Date', values='Interest')
-
-# Create mesh grid for plotting
-x = pivot_df.columns
-y = pivot_df.index
-z = pivot_df.values
-
-# Create a surface plot
-trace = go.Surface(
-    x=x,
-    y=y,
-    z=z,
-    colorscale='inferno',
-    cmin=0,     # Set the minimum value for the colorscale
-    cmax=10     # Set the maximum value for the colorscale
-)
-
-# Create a figure
-fig = go.Figure(data=[trace])
-
-# Update layout with max z-axis limit
-fig.update_layout(
-    scene=dict(
-        xaxis_title='Date',
-        yaxis_title='Maturity',
-        zaxis=dict(
-            title='Interest Rate',
-            range=[0, 10]  # Set the range for the z-axis
-        )
-    ),
-    title='Yield Curve 3D Surface Plot'
-)
-
-# Show the figure in the browser
-fig.show()
-
-
