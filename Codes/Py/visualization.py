@@ -11,42 +11,56 @@ import plotly.io as pio
 
 pio.renderers.default='browser'
 
-df_real_raw = pd.read_csv('//home//nascimento//Documents//Monografia//Data//BMF//Raw//ipca.csv', index_col = 0)
-df_nominal_raw = pd.read_csv('//home//nascimento//Documents//Monografia//Data//BMF//Raw//pre.csv', index_col = 0)
 
-start_date = '2020-01-01'
-end_date = '2023-12-31'
+def dim_plot(df, start_date = None, end_date = None, lim = [0,15]):
+    
+    """
+    Parameters
+    ----------
+    df : melted dataframe
 
-nominal = df_nominal_raw.loc[start_date:end_date]
-nominal = nominal.reset_index().rename(columns={'index': 'Date'})
-df_long = nominal.melt(id_vars='Date', var_name='Maturity', value_name='Interest')
+    start_date : str, 'yyyy-mm-dd'
+        By default it will use all the range.
+    
+    end_date : str, 'yyyy-mm-dd'
+        By default it will use all the range. 
+    
+    lim : list with the limits of the Interest rate.
+        The default is [0,15].
 
-#%%# Plotting it scattered
+    Returns
+    -------
+    None.
 
-trace = go.Scatter3d(
-    x=df_long['Date'],
-    y=df_long['Maturity'],
-    z=df_long['Interest'],
-    mode='markers',
-    marker=dict(
-        size= 1,
-        color=df_long['Interest'],  # Set color to interest
-        colorscale='inferno',  
-        cmin=0,                     # Set the minimum value for the colorscale
-        cmax=15,
-        opacity=0.7
+    """
+    
+    if start_date != None:
+        df = df.loc[start_date:end_date]
+    
+    df = df.reset_index().rename(columns={'index': 'Date'})
+    df = df.melt(id_vars='Date', var_name='Maturity', value_name='Interest')
+
+    trace = go.Scatter3d(
+        x=df['Date'],
+        y=df['Maturity'],
+        z=df['Interest'],
+        mode='markers',
+        marker=dict(
+            size= 1,
+            color=df['Interest'],  
+            colorscale='inferno',  
+            cmin=lim[0],                    
+            cmax=lim[1],
+            opacity=0.7
+        )
     )
-)
 
-# Create a figure
-fig = go.Figure(data=[trace])
+    fig = go.Figure(data=[trace])
 
-# Update layout
-fig.update_layout(scene=dict(
-    xaxis_title='Date',
-    yaxis_title='Maturity',
-    zaxis=dict(title = 'Interest Rate', range = [0,15])
-), title='Yield Curve 3D Scatter Plot')
+    fig.update_layout(scene=dict(
+        xaxis_title='Date',
+        yaxis_title='Maturity',
+        zaxis=dict(title = 'Interest Rate', range = lim)
+    ), title='Yield Curve 3D Scatter Plot')
 
-# Show the figure in the browser
-fig.show()
+    fig.show()

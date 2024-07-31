@@ -17,6 +17,7 @@ def _real(dt):
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=DIC'
     html = pd.read_html(url, encoding = 'latin1') # read B3 data
     data = None
+    print(f'Extraindo negociações de Swap DI X IPCA para o dia {dt}')
 
     if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
         data_list = [float(taxa) for taxa in list(html[1][0])[0].replace('Dias Corridos DI x IPCA 252(2) ', '').replace('Dias Corridos 252(2) ', '').replace(',', '.').split(' ')] # get data and cleaning it 
@@ -50,6 +51,8 @@ def _nominal(dt):
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=PRE'
     html = pd.read_html(url, encoding = 'latin1') # read B3 data
     data = None 
+    print(f'Extraindo negociações de Swap DI X Pré para o dia {dt}')
+
     if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
         data_list = list(html[1][0])[0].replace('Dias Corridos DI x pré 252(2)(4) 360(1) ', '').replace('Dias Corridos PRExDI 252(2)(4) 360(1) ', '').replace(',', '.').split(' ') # get data and cleaning it 
         n = 0 
@@ -67,7 +70,7 @@ def _nominal(dt):
             data.index = pd.to_datetime(data.index, format='%d/%m/%Y')                        
     return data 
 
-#%%# Solicitação da curva Real para um dia ou para um período
+#%%# Solicitação da curva para um dia ou para um período
 
 def _yield(function, start_date, end_date=None): 
 
@@ -88,43 +91,18 @@ def _yield(function, start_date, end_date=None):
     date_list = pd.date_range(start = start_date, end = start_date if end_date is None else end_date)
     
     for dt in date_list:
-        dt = dt.strftime('%d/%m/%Y')
-        print(f'Extraindo negociações de Swap DI X IPCA para o dia {dt}')
         
-        df_rate = _real(dt) # request data based on date (dt)
-        df = df_rate if not len(df) else pd.concat([df, df_rate]) # concat new data to the data frame 
-        df = df.reindex(columns=sorted(list(df.columns))) if not df.empty else df
+        dt = dt.strftime('%d/%m/%Y')
+        df_rate = globals()[function](dt)         
+        df = df_rate if not len(df) else pd.concat([df, df_rate])
+        
+        if df is None:
+            print(f'Nenhum dado disponível para {dt}')
+            df = []
+        else:
+            df = df.reindex(columns=sorted(list(df.columns))) if not df.empty else df
     return df 
 
-#%%# Solicitação da curva Nominal para um dia ou para um período
-"""
-def nominal(start_date, end_date=None): 
-
-    
-    Parameters
-    ----------
-    start_date: "yyyy-mm-dd"
-    end_date: "yyyy-mm-dd" (optional)
-    
-        
-    Returns
-    -------
-    data: yield curve for the given date or range
-    
-
-    df = []
-    
-    date_list = pd.date_range(start = start_date, end = start_date if end_date is None else end_date)
-    
-    for dt in date_list:
-        dt = dt.strftime('%d/%m/%Y')
-        print(f'Extraindo negociações de Swap DI X Pré para o dia {dt}')
-        
-        df_rate = _nominal(dt) # request data based on date (dt)
-        df = df_rate if not len(df) else pd.concat([df, df_rate]) # concat new data to the data frame 
-        df = df.reindex(columns=sorted(list(df.columns))) if not df.empty else df
-    return df
-"""
 
 #%%# Update da base de dados 
 
@@ -161,3 +139,7 @@ def update():
     df_real.to_csv(r'./Data/ipca.csv')
     
     return df_nominal, df_real
+
+real = lambda start_date, end_date: _yield('_real',start_date, end_date)
+nominal = lambda start_date, end_date: _yield('_nominal', start_date, end_date)
+
