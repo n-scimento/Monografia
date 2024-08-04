@@ -49,4 +49,4 @@ df = pd.DataFrame(response.json()['value'])
 df_pivot = pd.pivot_table(df, values = 'Mediana', columns = 'Reuniao', index = 'Data')
 
 #%%# Teste
-print('hi!')
+print('hi! damn')
