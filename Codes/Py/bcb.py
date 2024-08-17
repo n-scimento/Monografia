@@ -1,176 +1,159 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-#%%# To-do
-
 """
-Created on Wed Jul 31 00:17:17 2024
+Created on Sat Aug 17 17:15:20 2024
 
 @author: nascimento
-
----
-Planos:
-    Construir a base
-        Formatar a base para o formato da curva de juros! (index = data, column = maturity (período da previsçao), dados = valores)
-    Criar as funções
-        Função para puxar um dado de um período específico
-        Atualizador da base de dados: TODOS OS DADOS 
-    
-Base: https://www3.bcb.gov.br/expectativas2/#/consultaSeriesEstatisticas
-
-
-Dados:
-    IPCA
-    PIB
-    FX
-    SELIC
-    
-Links:
-    Documentação: 
-    https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/documentacao
-    https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/swagger-ui3#/
-    https://dadosabertos.bcb.gov.br/dataset/expectativas-mercado/resource/dc8139ea-2555-48d7-9026-54e3b5d1815b?inner_span=True
-    https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/swagger-ui2#/
-
-
 """
 
-#%%# Libraries 
-import requests 
-import pandas as pd
+import requests
+import pandas as pd 
+import threading
 
-    
-#%%# 
+#%%# Função de update
 
-def bcb():
+class bcb():
     
-    url = 'https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata'
+    def __init__(self):
+       
+        self.url = 'https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata'
+        
+        self.data  = [
+        ['selic_reuniao', self.url + "/ExpectativasMercadoSelic?$filter=Indicador eq 'Selic'",  'Reuniao'],
+        ['pib_trimestral', self.url + "/ExpectativasMercadoTrimestrais?$filter=Indicador eq 'PIB Total'", 'DataReferencia'],
+        ['ipca_12', self.url + "/ExpectativasMercadoInflacao12Meses?$filter=Indicador eq 'IPCA'", 'Indicador'],
+        ['selic_anual', self.url + "/ExpectativasMercadoAnuais?$filter=Indicador eq 'Selic'" , 'DataReferencia'],
+        ['pib_anual', self.url + "/ExpectativasMercadoAnuais?$filter=Indicador eq 'PIB Total'", 'DataReferencia'],
+        ['usd_anual', self.url + "/ExpectativasMercadoAnuais?$filter=Indicador eq 'Câmbio'", 'DataReferencia'],
+        ['ipca_anual', self.url + "/ExpectativasMercadoAnuais?$filter=Indicador eq 'IPCA'", 'DataReferencia'],
+        ['ipca_mensal', self.url + "/ExpectativaMercadoMensais?$filter=Indicador eq 'IPCA'", 'DataReferencia'],
+        ['usd_mensal', self.url + "/ExpectativaMercadoMensais?$filter=Indicador eq 'Câmbio'", 'DataReferencia'],
+        ]
+        
+    def _data_request(self, name, url, columns):
+        
+        print(f'\nBaixando: {name}')
+        df_raw = pd.DataFrame(requests.get(url).json()['value'])
+        
+        print(f'- Baixado: {name}\n- Salvando: {name}')
+        df_raw.to_csv(f'./Data/BCB/{name}_raw.csv')
+        
+        print(f'- Formatando: {name}')
+        
+        if name == 'selic_reuniao':
+            def reuniao(value):
+                parts = value.split('/')
+                return f"{parts[1]}-{parts[0][1:]}"
+            df_raw['Reuniao'] = df_raw['Reuniao'].apply(reuniao)
+        else:
+            pass
+        
+        df =  pd.pivot_table(df_raw, values = 'Mediana', columns = columns, index = 'Data')
+        df.index = pd.to_datetime(df.index)
+        
+        print(f'- Salvando formatado: {name}')
+        df.to_csv(f'./Data/BCB/{name}.csv')
+        
+        return df
+        
+    def bcb_update(self, data_list = slice(0,9)):
+        """
+        It will update all the BCB's databases if none argument is passed.
+        
+        The argument can be a list or a slice, in which items correspond to:
+            0. Selic por reunião
+            1. PIB trimestral
+            2. IPCA em 12 meses
+            3. Selic anual
+            4. PIB anual
+            5. Câmbio anual
+            6. IPCA anual
+            7. IPCA mensal
+            8. Câmbio mensal
+        
+        Return: a list of dataframes with the formatted data. 
+        """
+        
+        df_list = []
+        
+        if isinstance(data_list, slice):
+            selected_data = self.data[data_list]
+        elif isinstance(data_list, list):
+            selected_data = [self.data[i] for i in data_list]
+        else:
+            raise ValueError("data_list must be a slice or a list of indices.")
+            
+        print('\nAtualizando as seguintes tabelas:')
+        for arguments in selected_data:
+            print(f'- {arguments[0]}')
     
-    url_selic_reuniao = "/ExpectativasMercadoSelic?$filter=Indicador eq 'Selic'"
-    url_selic_anual = "/ExpectativasMercadoAnuais?$filter=Indicador eq 'Selic'" # pegar última reunião de cada ano
+        for arguments in selected_data:
+            try:
+                df = self._data_request(*arguments)
+                df_list.append(df)
+                
+            except Exception as e:
+                print(f'ERROR {arguments[0]}: {e}\n')
+        
+        return df_list
     
-    url_pib_trimestral = "/ExpectativasMercadoTrimestrais?$filter=Indicador eq 'PIB Total'"
-    url_pib_anual = "/ExpectativasMercadoAnuais?$filter=Indicador eq 'PIB Total'"
+    #%%# BCB load
     
-    url_usd_mensal = "/ExpectativaMercadoMensais?$filter=Indicador eq 'Câmbio'"
-    url_usd_anual = "/ExpectativasMercadoAnuais?$filter=Indicador eq 'Câmbio'"
+    def bcb_load(self, data_list = slice(0,9)):
+        """
+        It will load all BCB's databases (csv files) if none argument is passed.
+        
+        The argument can be a list or a slice, in which items correspond to:
+            0. Selic por reunião
+            1. PIB trimestral
+            2. IPCA em 12 meses
+            3. Selic anual
+            4. PIB anual
+            5. Câmbio anual
+            6. IPCA anual
+            7. IPCA mensal
+            8. Câmbio mensal
+        
+        Return: a list of dataframes with the formatted data. 
+        """
+        
+        df_list = []
+        data = [sublist[0] for sublist in self.data]
+        
+        if isinstance(data_list, slice):
+            selected_data = data[data_list]
+        elif isinstance(data_list, list):
+            selected_data = [data[i] for i in data_list]
+        
+        print('\nLoading data:')
+        
+        for table in selected_data:
+            try:
+                print(f'- {table}')
+                df = pd.read_csv(f'./Data/BCB/{table}.csv')
+                df_list.append(df)
+                print(' - feito')
+            except Exception as e:
+                print(f'ERROR {table}: {e}\n')
+            
+        return df_list
     
-    url_ipca_mensal = "/ExpectativaMercadoMensais?$filter=Indicador eq 'IPCA'"
-    url_ipca_12 = "/ExpectativasMercadoInflacao12Meses?$filter=Indicador eq 'IPCA'"
-    url_ipca_anual = "/ExpectativasMercadoAnuais?$filter=Indicador eq 'IPCA'"
+    #%%# BCB thread update
     
-    #%%# API 
-    
-    print('\nDownload dos dados:')
-    df_selic_reuniao_raw = pd.DataFrame(requests.get(url + url_selic_reuniao).json()['value'])
-    print('\n- Selic por reunião baixado!')
-    
-    df_pib_trimestral_raw = pd.DataFrame(requests.get(url + url_pib_trimestral).json()['value'])
-    print('\n- PIB trimestral baixado!')
-    
-    df_ipca_12_raw = pd.DataFrame(requests.get(url + url_ipca_12).json()['value'])
-    print('\n- IPCA 12 meses baixado!')
-    
-    print('\nDados anuais:')
-    df_selic_anual_raw = pd.DataFrame(requests.get(url + url_selic_anual).json()['value'])
-    print('\n- SELIC anual baixado!')
-    
-    df_pib_anual_raw = pd.DataFrame(requests.get(url + url_pib_anual).json()['value'])
-    print('\n- PIB anual baixado!')
-    
-    df_usd_anual_raw = pd.DataFrame(requests.get(url + url_usd_anual).json()['value'])
-    print('\n- Câmbio anual baixado!')
-    
-    df_ipca_anual_raw = pd.DataFrame(requests.get(url + url_ipca_anual).json()['value'])
-    print('\n- IPCA anual baixado!')
-    
-    print('\nDados mensais:')
-    df_usd_mensal_raw = pd.DataFrame(requests.get(url + url_usd_mensal).json()['value'])
-    print('\n- Câmbio mensal baixado!')
-    
-    df_ipca_mensal_raw = pd.DataFrame(requests.get(url + url_ipca_mensal).json()['value'])
-    print('\n- IPCA mensal baixado!')
-    
-    def reuniao(value):
-        parts = value.split('/')
-        return f"{parts[1]}-{parts[0][1:]}"
-    
-    df_selic_reuniao_raw['Reuniao'] = df_selic_reuniao_raw['Reuniao'].apply(reuniao)
-    
-    #%%# Save raw
-    
-    print('\nSalvando arquivos sem formatação')
-    df_selic_reuniao_raw.to_csv('./Data/BCB/selic_reuniao_raw.csv')
-    df_pib_trimestral_raw.to_csv('./Data/BCB/pib_trimestral_raw.csv')
-    df_ipca_12_raw.to_csv('./Data/BCB/ipca_12_raw.csv')
-    
-    df_selic_anual_raw.to_csv('./Data/BCB/selic_anual_raw.csv')
-    df_pib_anual_raw.to_csv('./Data/BCB/pib_anual_raw.csv')
-    df_usd_anual_raw.to_csv('./Data/BCB/usd_anual_raw.csv')
-    df_ipca_anual_raw.to_csv('./Data/BCB/ipca_anual_raw.csv')
-    
-    df_usd_mensal_raw.to_csv('./Data/BCB/usd_mensal_raw.csv')
-    df_ipca_mensal_raw.to_csv('./Data/BCB/ipca_mensal_raw.csv')
-    
-    #%%# Format 
-    
-    print('\nFormatando dados')
-    df_selic_reuniao =  pd.pivot_table(df_selic_reuniao_raw, values = 'Mediana', columns = 'Reuniao', index = 'Data')
-    df_selic_reuniao.index = pd.to_datetime(df_selic_reuniao.index)
-    
-    df_pib_trimestral = pd.pivot_table(df_pib_trimestral_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_pib_trimestral.index = pd.to_datetime(df_pib_trimestral.index)
-    
-    df_ipca_12 = pd.pivot_table(df_ipca_12_raw, values = 'Mediana', columns = 'Indicador', index = 'Data')
-    df_ipca_12.index = pd.to_datetime(df_ipca_12.index)
-    
-    df_selic_anual = pd.pivot_table(df_selic_anual_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_selic_anual.index = pd.to_datetime(df_selic_anual.index)
-    
-    df_pib_anual = pd.pivot_table(df_pib_anual_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_pib_anual.index = pd.to_datetime(df_pib_anual.index)
-    
-    df_usd_anual = pd.pivot_table(df_usd_anual_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_usd_anual.index = pd.to_datetime(df_usd_anual.index)
-    
-    df_ipca_anual = pd.pivot_table(df_ipca_anual_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_ipca_anual.index = pd.to_datetime(df_ipca_anual.index)
-    
-    df_ipca_mensal = pd.pivot_table(df_ipca_mensal_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_ipca_mensal.index = pd.to_datetime(df_ipca_mensal.index)
-    
-    df_usd_mensal = pd.pivot_table(df_usd_mensal_raw, values = 'Mediana', columns = 'DataReferencia', index = 'Data')
-    df_usd_mensal.index = pd.to_datetime(df_usd_mensal.index)
-    
-    #%%# Save
-    
-    print('\nSalvando dados formatados')
-    df_selic_reuniao.to_csv('./Data/BCB/selic_reuniao.csv')
-    df_pib_trimestral.to_csv('./Data/BCB/pib_trimestral.csv')
-    df_ipca_12.to_csv('./Data/BCB/ipca_12.csv')
-    
-    df_selic_anual.to_csv('./Data/BCB/selic_anual.csv')
-    df_pib_anual.to_csv('./Data/BCB/pib_anual.csv')
-    df_usd_anual.to_csv('./Data/BCB/usd_anual.csv')
-    df_ipca_anual.to_csv('./Data/BCB/ipca_anual.csv')
-    
-    df_usd_mensal.to_csv('./Data/BCB/usd_mensal.csv')
-    df_ipca_mensal.to_csv('./Data/BCB/ipca_mensal.csv')
-    
-    return df_selic_reuniao, df_pib_trimestral, df_ipca_12, df_selic_anual, df_pib_anual, df_usd_anual, df_ipca_anual, df_usd_mensal, df_ipca_mensal
-
-
-def bcb_read():
-    df_selic_reuniao = pd.read_csv('./Data/BCB/selic_reuniao.csv')
-    df_pib_trimestral = pd.read_csv('./Data/BCB/pib_trimestral.csv')
-    df_ipca_12 = pd.read_csv('./Data/BCB/ipca_12.csv')
-    
-    df_selic_anual = pd.read_csv('./Data/BCB/selic_anual.csv')
-    df_pib_anual = pd.read_csv('./Data/BCB/pib_anual.csv')
-    df_usd_anual = pd.read_csv('./Data/BCB/usd_anual.csv')
-    df_ipca_anual = pd.read_csv('./Data/BCB/ipca_anual.csv')
-    
-    df_usd_mensal = pd.read_csv('./Data/BCB/usd_mensal.csv')
-    df_ipca_mensal = pd.read_csv('./Data/BCB/ipca_mensal.csv')
-    
-    return df_selic_reuniao, df_pib_trimestral, df_ipca_12, df_selic_anual, df_pib_anual, df_usd_anual, df_ipca_anual, df_usd_mensal, df_ipca_mensal
+    def bcb_update_thread(self):
+        """
+        It will update all the BCB's database with multi threading for a better performance.
+        
+        Return: none.
+        """
+        
+        threads = []
+        
+  
+        for arguments in self.data:
+            t = threading.Thread(target=self._data_request, args=(*arguments,))
+            t.start()
+            threads.append(t)  
+        
+        for t in threads:
+            t.join()

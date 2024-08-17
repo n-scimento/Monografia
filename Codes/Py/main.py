@@ -1,18 +1,24 @@
 #%%# Setup folder
 import os
 
-folder_name = 'Py'
-for root, dirs, files in os.walk(os.getcwd()):
-    if folder_name in dirs:
-        new_path = os.path.join(root, folder_name)
-        os.chdir(new_path)
+def folder():
+    folder_name = 'Py'
+    for root, dirs, files in os.walk(os.getcwd()):
+        if folder_name in dirs:
+            new_path = os.path.join(root, folder_name)
+            os.chdir(new_path)
         
+folder() 
 #%%# Libraries
 
 import pandas as pd 
 from bmf import real, nominal, update
 from visualization import dim_plot, flat_plot  
-from bcb import bcb, bcb_read
+from bcb import bcb
+
+bcb_update = bcb().bcb_update
+bcb_load = bcb().bcb_load
+bcb_update_thread = bcb().bcb_update_thread
 
 #%%# Functions sandbox 
 
@@ -27,11 +33,10 @@ flat_plot(df, ['2024-01-02', '2024-01-03', '2024-02-02'], ['markers', 'markers',
 
 #%%# BCB download 
 
-df_selic_reuniao, df_pib_trimestral, df_ipca_12, df_selic_anual, df_pib_anual, df_usd_anual, df_ipca_anual, df_usd_mensal, df_ipca_mensal = bcb()
+df_list_bcb = bcb_update()
 
 #%%# BCB load
 
-df_selic_reuniao, df_pib_trimestral, df_ipca_12, df_selic_anual, df_pib_anual, df_usd_anual, df_ipca_anual, df_usd_mensal, df_ipca_mensal = bcb_read()
-
+df_list_bcb = bcb_load()
 
 #%%# NSS 

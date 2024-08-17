@@ -17,7 +17,7 @@ def _real(dt):
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=DIC'
     html = pd.read_html(url, encoding = 'latin1') # read B3 data
     data = None
-    print(f'Extraindo negociações de Swap DI X IPCA para o dia {dt}')
+    print(f'- Extraindo negociações de Swap DI X IPCA para o dia {dt}')
 
     if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
         data_list = [float(taxa) for taxa in list(html[1][0])[0].replace('Dias Corridos DI x IPCA 252(2) ', '').replace('Dias Corridos 252(2) ', '').replace(',', '.').split(' ')] # get data and cleaning it 
@@ -51,7 +51,7 @@ def _nominal(dt):
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=PRE'
     html = pd.read_html(url, encoding = 'latin1') # read B3 data
     data = None 
-    print(f'Extraindo negociações de Swap DI X Pré para o dia {dt}')
+    print(f'- Extraindo negociações de Swap DI X Pré para o dia {dt}')
 
     if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
         data_list = list(html[1][0])[0].replace('Dias Corridos DI x pré 252(2)(4) 360(1) ', '').replace('Dias Corridos PRExDI 252(2)(4) 360(1) ', '').replace(',', '.').split(' ') # get data and cleaning it 
@@ -118,8 +118,8 @@ def update():
         IPCA x Pré Swap negotiations 2005-01-01 until today.
 
     """
-    df_real_hist = pd.read_csv(r'./Data/ipca.csv',index_col = 0)
-    df_nominal_hist = pd.read_csv(r'./Data/pre.csv', index_col = 0)
+    df_real_hist = pd.read_csv(r'./Data/BMF/ipca.csv',index_col = 0)
+    df_nominal_hist = pd.read_csv(r'./Data/BMF/pre.csv', index_col = 0)
     
     df_real_hist.columns = df_real_hist.columns.astype('float64') 
     df_real_hist.index = df_real_hist.index.astype('datetime64[ns]') 
@@ -135,8 +135,8 @@ def update():
     df_real = pd.concat([df_real_hist, df_real_update]).reset_index().drop_duplicates(subset='Date', keep='first').set_index('Date')
     
     print('Base atualizada! Salvação em andamento.')
-    df_nominal.to_csv(r'./Data/pre.csv')
-    df_real.to_csv(r'./Data/ipca.csv')
+    df_nominal.to_csv(r'./Data/BMF/pre.csv')
+    df_real.to_csv(r'./Data/BMF/ipca.csv')
     
     return df_nominal, df_real
 
