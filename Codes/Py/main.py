@@ -16,9 +16,9 @@ from bmf import real, nominal, update
 from visualization import dim_plot, flat_plot  
 from bcb import bcb
 
-bcb_update = bcb().bcb_update
+bcb_download = bcb().bcb_download
 bcb_load = bcb().bcb_load
-bcb_update_thread = bcb().bcb_update_thread
+bcb_download_thread = bcb().bcb_download_thread 
 
 #%%# Functions sandbox 
 
@@ -33,10 +33,10 @@ flat_plot(df, ['2024-01-02', '2024-01-03', '2024-02-02'], ['markers', 'markers',
 
 #%%# BCB download 
 
-df_list_bcb = bcb_update()
+df_list_bcb = bcb_download_thread()
 
 #%%# BCB load
 
-df_list_bcb = bcb_load()
+df_selic_reuniao, df_pib_trimestral, df_ipca_12, df_selic_anual, df_pib_anual, df_usd_anual, df_ipca_anual, df_ipca_mensal, df_usd_mensal = bcb_load()
 
 #%%# NSS 
