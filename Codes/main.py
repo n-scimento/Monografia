@@ -1,26 +1,29 @@
-#%%# Setup folder
+# %%# Setup folder
 import os
 
+
 def folder():
-    folder_name = 'Py'
+    folder_name = 'Codes'
     for root, dirs, files in os.walk(os.getcwd()):
         if folder_name in dirs:
             new_path = os.path.join(root, folder_name)
             os.chdir(new_path)
-        
-folder() 
-#%%# Libraries
 
-import pandas as pd 
+
+folder()
+# %%# Libraries
+
+import pandas as pd
 from bmf import real, nominal, update
-from visualization import dim_plot, flat_plot  
+from visualization import dim_plot, flat_plot
 
 from bcb import bcb
+
 bcb_download = bcb().bcb_download
 bcb_load = bcb().bcb_load
-bcb_download_thread = bcb().bcb_download_thread 
+bcb_download_thread = bcb().bcb_download_thread
 
-#%%# Functions sandbox 
+# %%# Functions sandbox
 
 """
 df_real_hist = pd.read_csv(r'./Data/ipca.csv',index_col = 0)
