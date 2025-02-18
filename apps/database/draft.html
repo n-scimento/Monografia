@@ -1,0 +1,2399 @@
+<table border="0" cellpadding="0" cellspacing="0" class="tabConteudo" id="tb_principal1" name="tb_principal1" width="95%">
+<td align="center" class="tabelaTitulo" rowspan="2">Dias<br/>
+Corridos</td>
+<td align="center" class="tabelaTitulo" colspan="2">DI x pré</td>
+</table>
+soup
+<script language="Javascript">
+function retroativo_Validator(theForm)
+{
+   if(!CkDate(theForm.txtData, theForm.txtData.value))
+  {
+        window.alert("A data deve estar no formato dd/mm/aaaa.");
+
+    theForm.txtData.focus();
+    theForm.txtData.select();
+    return false;
+  };
+}
+function VerificaData(data) //data: string		return: boolean
+{
+	var filter = /^((0?[1-9]|[12]\d)\/(0?[1-9]|1[0-2])|30\/(0?[13-9]|1[0-2])|31\/(0?[13578]|1[02]))\/(19|20)?\d{2}$/;
+	if(filter.test(data)) return true
+	else
+	{
+
+				window.alert("A data deve estar no formato dd/mm/aaaa.");
+
+		return false;
+	}
+}
+function CkDate(campo,dData)
+{
+	var b_Ok;
+	b_Ok = true;
+	var sData = dData;
+	if(sData == "" )
+	{
+		b_Ok = false;
+	}
+	if(((sData.length)<(8))||((sData.length)>(10)))
+	{
+		b_Ok = false;
+	}
+	if(b_Ok)
+	{
+		var index;
+		var aux;
+		var sDia;
+		var sMes;
+		var sAno;
+		sDia = sData.substr(0,sData.indexOf("/"));
+		sMes = sData.substr(sData.indexOf("/")+1,((sData.lastIndexOf("/"))-(sData.indexOf("/")))-1);
+
+		sAno = sData.substr(sData.lastIndexOf("/")+1,sData.length);
+		sData = sDia + "" + sMes + "" + sAno;
+		if(((sMes.length)!=(2))||((sDia.length)!=(2)))
+		{
+			b_Ok = false;
+		}
+		for(index=0;index<(sData.length);index++)
+		{
+			if(isNaN(sData.substr(index,1)))
+			{
+				b_Ok = false;
+			}
+		}
+		if(b_Ok)
+		{
+			if((sMes==0)||(sDia==0)||(sAno==0))
+			{
+				b_Ok = false;
+			}
+			if(((sDia.length)>(2))||((sDia.length)<(1)))
+			{
+				b_Ok = false;
+			}
+			if(((sMes.length)>(2))||((sMes.length)<(1)))
+			{
+				b_Ok = false;
+			}
+			if((sAno.length)!=(4))
+			{
+				b_Ok = false;
+			}
+			if(b_Ok)
+			{
+				if(((sAno)<(1990))||((sAno)>(2025)))
+				{
+					b_Ok = false;
+				}
+				else
+				{
+					if((sMes)>(12))
+					{
+						b_Ok = false;
+					}
+					else
+					{
+						if((sDia)>(31))
+						{
+							b_Ok = false;
+						}
+						else
+						{
+							aMes = new Array();
+							aMes[0] = 31;
+							if(((sAno)%(4))!=(0))
+							{
+								aMes[1] = 28;
+							}
+							else
+							{
+								aMes[1] = 29;
+							}
+							aMes[2] = 31;
+							aMes[3] = 30;
+							aMes[4] = 31;
+							aMes[5] = 30;
+							aMes[6] = 31;
+							aMes[7] = 31;
+							aMes[8] = 30;
+							aMes[9] = 31;
+							aMes[10] = 30;
+							aMes[11] = 31;
+							if((aMes[sMes-1])<(sDia))
+							{
+								b_Ok = false;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(b_Ok)
+	{
+		return true;
+	}
+	else
+	{
+		campo.focus();
+		return false;
+	}
+}
+function mask_data_home(ini,fim,decimal,theForm) {
+  var keypressed = window.event.keyCode;
+  var ElementText  = window.event.srcElement.value ;
+  if (keypressed == 45){
+    if (ElementText.length!=0) {
+      window.event.keyCode = 0;
+      return;
+    }
+  }
+  if (keypressed == 46){
+    if (ElementText.length!=0) {
+      window.event.keyCode = 0;
+      return;
+    }
+  }
+  else
+  {
+    if (decimal)
+	{
+    	var Reg = /\./g;
+      	if (Reg.test(ElementText))
+		{
+			if( (keypressed >= 48 && keypressed <= 57) == false)
+			{
+			  window.event.keyCode = 0;
+			  return;
+			}
+		}
+		else
+		{
+			if ((keypressed >= 48 && keypressed <= 57 || keypressed == 46) == false) {
+        	window.event.keyCode = 0;
+          	return;
+        }
+      }
+    }
+    else
+	{
+    	if ((keypressed >= 48 && keypressed <= 57) == false)
+		{
+			window.event.keyCode = 0;
+    	    return;
+	    }
+    }
+  }
+ //Para os gráficos que possuem apenas uma data
+ //javascript:mask_data('2','0',true,theForm)
+  if (ini == 2)
+  {
+	if (ElementText.length == 2 || ElementText.length == 5)
+	{
+		theForm.txtData.value += '/';
+	}
+  }
+}
+/************************************************************************************************************/
+/* Nome			: Valida_Intervalo_Datas																	*/
+/************************************************************************************************************/
+/* Finalidade	: Trazer o retorno de acordo com o resultado da comparaçăo feita entre os intervalos	    */
+/*				  de datas																					*/
+/* Parâmetros	:
+/************************************************************************************************************/
+/* Autor		: Alessandro C. Alba																		*/
+/* Data			: 08/06/2006																				*/
+/************************************************************************************************************/
+function Valida_Intervalo_Datas(dData1, dData2)
+{
+	retorno = ComparaDatas(dData1, dData2);
+	if( retorno == 2 )
+	{
+	    return (false);
+	}
+	else
+	{
+	    return (true);
+	};
+};
+/************************************************************************************************************/
+/* Nome			: ComparaDatas																				*/
+/************************************************************************************************************/
+/* Finalidade	: Comparar e validar um intervalo de tadas													*/
+/* Parâmetros	: dData1 -> Data Inicial do Intervalo														*/
+/*				  dData2 -> Data Final do Intervalo															*/
+/************************************************************************************************************/
+/* Autor		: Alessandro C. Alba																		*/
+/* Data			: 08/06/2006																				*/
+/************************************************************************************************************/
+function ComparaDatas(dData1, dData2)
+{
+	var iData1 = 0;
+	var iData2 = 0;
+	var iDia1 = new String();
+	var iMes1 = new String();
+	var iAno1 = new String();
+	var iDia2 = new String();
+	var iMes2 = new String();
+	var iAno2 = new String();
+	if( dData1 == "" && dData2 != "")
+	{
+		return 2
+	}
+	if( dData1 != "" && dData2 == "")
+	{
+		return 2
+	}
+	iDia1 = dData1.substring(0,2);
+	iMes1 = dData1.substring(3,5);
+	iAno1 = dData1.substring(6,10);
+	iDia2 = dData2.substring(0,2);
+	iMes2 = dData2.substring(3,5);
+	iAno2 = dData2.substring(6,10);
+	iData1 = parseInt(iAno1 + iMes1 + iDia1);
+	iData2 = parseInt(iAno2 + iMes2 + iDia2);
+	if (iData1 == iData2)
+	{
+		//Data1 é igual a Data2
+		return 0
+	}
+	else if (iData1 < iData2)
+	{
+		//Data1 é menor que Data2
+		return 1
+	}
+	else if (iData1 > iData2)
+	{
+		//Data1 é maior que Data2
+		return 2
+	}
+};
+function HintText(control,text,eraseable)
+{
+	if(control.value == text) control.value = "";
+	else if(control.value == "") control.value = text;
+}
+function mask_data(ini,fim,decimal,TForm,TField) {
+  var keypressed = window.event.keyCode;
+  var ElementText  = window.event.srcElement.value ;
+  if (keypressed == 45){
+    if (ElementText.length!=0) {
+      window.event.keyCode = 0;
+      return;
+    }
+  }
+  if (keypressed == 46){
+    if (ElementText.length!=0) {
+      window.event.keyCode = 0;
+      return;
+    }
+  }
+  else {
+    if (decimal) {
+      var Reg = /\./g;
+      if (Reg.test(ElementText)) {
+        if( (keypressed >= 48 && keypressed <= 57) == false) {
+          window.event.keyCode = 0;
+          return;
+        }
+      }
+      else {
+        if ((keypressed >= 48 && keypressed <= 57 || keypressed == 46) == false) {
+          window.event.keyCode = 0;
+          return;
+        }
+      }
+    }
+    else {
+      if ((keypressed >= 48 && keypressed <= 57) == false) {
+        window.event.keyCode = 0;
+        return;
+      }
+    }
+  }
+  //Para os gráficos que possuem data inicial e data final
+  if (ini == 1 || fim == 1)
+  {
+	//javascript:mask_data('1','0',true)
+	if (ini == 1)
+	{
+		if (ElementText.length == 2 || ElementText.length == 5)
+		{
+			document.getElementById(TField).value += '/';
+		}
+	}
+	//javascript:mask_data('0','1',true)
+	if (fim == 1)
+	{
+		if (ElementText.length == 2 || ElementText.length == 5)
+		{
+			document.getElementById(TField).value += '/';
+		}
+	}
+  }
+ //Para os gráficos que possuem apenas uma data
+ //javascript:mask_data('2','0',true)
+  if (ini == 2)
+  {
+	if (ElementText.length == 2 || ElementText.length == 5) { document.getElementById(TField).value += '/' }
+  }
+};
+</script>
+<html><!-- InstanceBegin template="/Templates/br_Boletim.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<!-- START OF SmartSource Data Collector TAG -->
+<!-- Copyright (c) 1996-2010 WebTrends Inc.  All rights reserved. -->
+<!-- Version: 8.6.2 -->
+<!-- Tag Builder Version: 3.0  -->
+<!-- Created: 3/30/2010 4:35:15 PM -->
+<script data-dtconfig="rid=RID_-1978624435|rpid=-177126204|domain=bmf.com.br|reportUrl=/rb_ea8d7b8f-040c-423b-b726-54310cab2c40|app=e44446475f923f8e|cuc=kju5m9kg|mel=100000|featureHash=ICANVfqru|dpvc=1|lastModification=1738417336724|tp=500,50,0|rdnt=1|uxrgce=1|agentUri=/ruxitagentjs_ICANVfqru_10305250107141607.js" src="/ruxitagentjs_ICANVfqru_10305250107141607.js" type="text/javascript"></script><script src="http://www.bmfbovespa.com.br/Shared/js/webtrends.js" type="text/javascript"></script>
+<!-- ----------------------------------------------------------------------------------- -->
+<!-- Warning: The two script blocks below must remain inline. Moving them to an external -->
+<!-- JavaScript include file can cause serious problems with cross-domain tracking.      -->
+<!-- ----------------------------------------------------------------------------------- -->
+<script type="text/javascript">
+//<![CDATA[
+var _tag=new WebTrends();
+_tag.dcsGetId();
+//]]>>
+</script>
+<script type="text/javascript">
+//<![CDATA[
+// Add custom parameters here.
+//_tag.DCSext.param_name=param_value;
+_tag.dcsCollect();
+//]]>>
+</script>
+<noscript>
+<div><img alt="DCSIMG" height="1" id="DCSIMG" src="http://sdcbov.bovespa.com.br/dcs7cxucm10000g0rpvv97ynr_2s8b/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=8.6.2" width="1"/></div>
+</noscript>
+<!-- END OF SmartSource Data Collector TAG -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-43178799-2', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Taxas Referenciais BM&amp;F </title>
+<!-- InstanceEndEditable -->
+<script language="JavaScript" src="http://www.bmf.com.br/bmfbovespa/library/windows.js"></script>
+<script language="JavaScript" src="http://www.bmf.com.br/bmfbovespa/library/navegation.js"></script>
+<script language="JavaScript" src="http://www.bmf.com.br/bmfbovespa/library/menuCtrls.js"></script>
+<script language="JavaScript" src="http://www.bmf.com.br/bmfbovespa/library/dreamweavermx.js"></script>
+<link href="http://www.bmf.com.br/bmfbovespa/styles/meuCSS_default.css" rel="stylesheet" type="text/css"/>
+<link href="http://www.bmf.com.br/bmfbovespa/styles/bmfbovespa.css" rel="stylesheet" type="text/css"/>
+<!-- InstanceBeginEditable name="head" --> <!-- InstanceEndEditable --> <!-- InstanceParam name="DESCRIPTION" type="boolean" value="false" -->
+</head>
+<body leftmargin="0" marginheight="0" marginwidth="0" topmargin="0">
+<!-- InstanceBeginEditable name="TEXTO" -->
+<h1>Taxas Referenciais BM&amp;F</h1>
+<form action="TxRef1.asp" method="post" name="frmTxReferenciais" onsubmit="return EnviaForm();">
+<input name="caminho" type="hidden" value="Boletim||Indicadores||Taxas Referenciais BM&amp;F"/>
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td align="left" class="TXT_Azul" height="30">Atualizado em: 14/02/2025</td>
+<td align="right" class="TXT_Azul" height="30">
+<input id="Data1" name="Data1" type="hidden" value="20250214"/>
+        Retroativo:
+         <input class="combo" id="Data" maxlength="10" name="Data" onkeypress="return mask_data();" size="11" style="width: 100px;" type="text" value="14/02/2025"/>
+         <input border="0" name="Consultar" src="http://www.bmf.com.br/bmfbovespa/images/comum/btoOk.gif" type="image"/>
+</td>
+</tr>
+<tr>
+<td align="left" class="TXT_Azul" height="30">Taxa: 
+            <select class="comboAmarelo" name="slcTaxa" onchange="Busca(this.selectedIndex)" style="width: 175px;">
+<option value="ACC">
+                Ajuste cupom
+                </option>
+<option value="ALD">
+                Alumínio
+                </option>
+<option value="AN">
+                DI x Anbid
+                </option>
+<option value="ANP">
+                Anbid x pré
+                </option>
+<option value="APR">
+                Ajuste pré
+                </option>
+<option value="BRP">
+                IBrX-50
+                </option>
+<option value="CBD">
+                Cobre
+                </option>
+<option value="DCO">
+                Cupom Cambial OC1
+                </option>
+<option value="DIC">
+                DI x IPCA
+                </option>
+<option value="DIM">
+                DI x IGP-M
+                </option>
+<option value="DOC">
+                Cupom limpo
+                </option>
+<option value="DOL">
+                DI x dólar
+                </option>
+<option value="DP">
+                Dólar x pré
+                </option>
+<option value="EUC">
+                DI x euro
+                </option>
+<option value="EUR">
+                Real x euro
+                </option>
+<option value="IAP">
+                IPCA
+                </option>
+<option value="INP">
+                Ibovespa
+                </option>
+<option value="IPR">
+                IGP-M
+                </option>
+<option value="JPY">
+                Real x iene
+                </option>
+<option value="LIB">
+                Libor
+                </option>
+<option value="NID">
+                Níquel
+                </option>
+<option value="PBD">
+                Chumbo
+                </option>
+<option value="PDN">
+                Prob. năo default
+                </option>
+<option selected="" value="PRE">
+                DI x pré
+                </option>
+<option value="PTX">
+                Real x dólar
+                </option>
+<option value="SDE">
+                Spread Libor Euro x Dólar
+                </option>
+<option value="SLP">
+                Selic x pré
+                </option>
+<option value="SND">
+                Estanho
+                </option>
+<option value="TFP">
+                TBF x pré
+                </option>
+<option value="TP">
+                TR x pré
+                </option>
+<option value="TR">
+                DI x TR
+                </option>
+<option value="ZND">
+                Zinco
+                </option>
+<option value="TODOS">TODAS</option>
+</select>
+</td>
+<td align="right" class="TXT_Azul" height="30">
+<img align="absmiddle" hspace="0" onclick="salvaxls()" src="http://www.bmf.com.br/bmfbovespa/images/comum/btoExcel.gif" style="CURSOR:HAND"/>
+</td>
+</tr>
+</table>
+<!--/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-/\-->
+<!--<tr>
+<td align="center" height="20"> -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td class="TXT" valign="top" width="50%">
+<table border="0" cellpadding="0" cellspacing="0" class="tabConteudo" id="tb_principal1" name="tb_principal1" width="95%">
+<td align="center" class="tabelaTitulo" rowspan="2">Dias<br/>
+Corridos</td>
+<td align="center" class="tabelaTitulo" colspan="2">DI x pré</td>
+</table></td></tr>
+<!-- td CLASS="tabelaTituloEspecial" width="< %=100\ubound(aTabela,1)%>%" align="center" -->
+<td align="center" class="tabelaItem" width="%">
+252<sup>(2)(4)</sup>
+</td>
+<!-- td CLASS="tabelaTituloEspecial" width="< %=100\ubound(aTabela,1)%>%" align="center" -->
+<td align="center" class="tabelaItem" width="%">
+360<sup>(1)</sup>
+</td>
+<tr>
+<td align="center" class="tabelaConteudo1">3</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,15 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+0,00 </td>
+</tr>
+<td align="center" class="tabelaConteudo2">7</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,16 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,44 </td>
+<td align="center" class="tabelaConteudo1">13</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,16 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,01 </td>
+<td align="center" class="tabelaConteudo2">14</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,16 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,44 </td>
+<td align="center" class="tabelaConteudo1">19</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,16 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+10,77 </td>
+<td align="center" class="tabelaConteudo2">21</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,23 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+11,61 </td>
+<td align="center" class="tabelaConteudo1">28</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,33 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,18 </td>
+<td align="center" class="tabelaConteudo2">31</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,34 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+11,59 </td>
+<td align="center" class="tabelaConteudo1">33</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,37 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,08 </td>
+<td align="center" class="tabelaConteudo2">34</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+12,30 </td>
+<td align="center" class="tabelaConteudo1">35</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,39 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,52 </td>
+<td align="center" class="tabelaConteudo2">42</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,42 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+12,74 </td>
+<td align="center" class="tabelaConteudo1">45</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,43 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,30 </td>
+<td align="center" class="tabelaConteudo2">46</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,43 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+12,46 </td>
+<td align="center" class="tabelaConteudo1">60</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,62 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,93 </td>
+<td align="center" class="tabelaConteudo2">61</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,64 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,06 </td>
+<td align="center" class="tabelaConteudo1">62</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,65 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,18 </td>
+<td align="center" class="tabelaConteudo2">74</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,72 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+12,65 </td>
+<td align="center" class="tabelaConteudo1">75</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,73 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,75 </td>
+<td align="center" class="tabelaConteudo2">77</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,74 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+12,68 </td>
+<td align="center" class="tabelaConteudo1">90</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,86 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+12,93 </td>
+<td align="center" class="tabelaConteudo2">97</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,92 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,07 </td>
+<td align="center" class="tabelaConteudo1">105</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,97 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,26 </td>
+<td align="center" class="tabelaConteudo2">108</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,98 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,08 </td>
+<td align="center" class="tabelaConteudo1">119</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,47 </td>
+<td align="center" class="tabelaConteudo2">122</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,08 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,31 </td>
+<td align="center" class="tabelaConteudo1">124</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,09 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,44 </td>
+<td align="center" class="tabelaConteudo2">126</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,10 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,39 </td>
+<td align="center" class="tabelaConteudo1">133</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,14 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,48 </td>
+<td align="center" class="tabelaConteudo2">136</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,15 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,32 </td>
+<td align="center" class="tabelaConteudo1">137</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,15 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,38 </td>
+<td align="center" class="tabelaConteudo2">150</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,23 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,51 </td>
+<td align="center" class="tabelaConteudo1">151</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,24 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,57 </td>
+<td align="center" class="tabelaConteudo2">159</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,29 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,70 </td>
+<td align="center" class="tabelaConteudo1">166</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,32 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,77 </td>
+<td align="center" class="tabelaConteudo2">167</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,33 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,82 </td>
+<td align="center" class="tabelaConteudo1">168</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,33 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,86 </td>
+<td align="center" class="tabelaConteudo2">180</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,39 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,90 </td>
+<td align="center" class="tabelaConteudo1">182</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,40 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,99 </td>
+<td align="center" class="tabelaConteudo2">195</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,45 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,05 </td>
+<td align="center" class="tabelaConteudo1">196</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,10 </td>
+<td align="center" class="tabelaConteudo2">199</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,98 </td>
+<td align="center" class="tabelaConteudo1">210</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,51 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,19 </td>
+<td align="center" class="tabelaConteudo2">213</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,51 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,09 </td>
+<td align="center" class="tabelaConteudo1">216</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,53 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo2">217</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,53 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,23 </td>
+<td align="center" class="tabelaConteudo1">220</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,54 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,13 </td>
+<td align="center" class="tabelaConteudo2">228</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">229</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,25 </td>
+<td align="center" class="tabelaConteudo2">241</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,60 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,26 </td>
+<td align="center" class="tabelaConteudo1">243</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,61 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,32 </td>
+<td align="center" class="tabelaConteudo2">244</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,61 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,35 </td>
+<td align="center" class="tabelaConteudo1">258</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,64 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,42 </td>
+<td align="center" class="tabelaConteudo2">259</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,65 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,45 </td>
+<td align="center" class="tabelaConteudo1">262</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,65 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,36 </td>
+<td align="center" class="tabelaConteudo2">270</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,67 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,42 </td>
+<td align="center" class="tabelaConteudo1">276</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,69 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,43 </td>
+<td align="center" class="tabelaConteudo2">278</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,69 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,48 </td>
+<td align="center" class="tabelaConteudo1">287</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,71 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,48 </td>
+<td align="center" class="tabelaConteudo2">290</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,71 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,40 </td>
+<td align="center" class="tabelaConteudo1">300</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,74 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,52 </td>
+<td align="center" class="tabelaConteudo2">306</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,76 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,52 </td>
+<td align="center" class="tabelaConteudo1">307</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,76 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,55 </td>
+<td align="center" class="tabelaConteudo2">308</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,77 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,58 </td>
+<td align="center" class="tabelaConteudo1">318</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,78 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<td align="center" class="tabelaConteudo2">319</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,79 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,48 </td>
+<td align="center" class="tabelaConteudo1">322</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,79 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,49 </td>
+<td align="center" class="tabelaConteudo2">332</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,81 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,44 </td>
+<td align="center" class="tabelaConteudo1">335</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,82 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,51 </td>
+<td align="center" class="tabelaConteudo2">350</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,85 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,59 </td>
+<td align="center" class="tabelaConteudo1">353</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,85 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,52 </td>
+<td align="center" class="tabelaConteudo2">360</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,86 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,54 </td>
+<td align="center" class="tabelaConteudo1">369</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,86 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,48 </td>
+<td align="center" class="tabelaConteudo2">378</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,87 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,54 </td>
+<td align="center" class="tabelaConteudo1">390</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,88 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,53 </td>
+<td align="center" class="tabelaConteudo2">395</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,89 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,51 </td>
+<td align="center" class="tabelaConteudo1">399</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,89 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,59 </td>
+<td align="center" class="tabelaConteudo2">402</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,53 </td>
+<td align="center" class="tabelaConteudo1">410</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,57 </td>
+<td align="center" class="tabelaConteudo2">411</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,59 </td>
+<td align="center" class="tabelaConteudo1">420</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,58 </td>
+<td align="center" class="tabelaConteudo2">425</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<td align="center" class="tabelaConteudo1">451</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<td align="center" class="tabelaConteudo2">455</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,53 </td>
+<td align="center" class="tabelaConteudo1">480</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,91 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,48 </td>
+<td align="center" class="tabelaConteudo2">488</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,91 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,50 </td>
+<td align="center" class="tabelaConteudo1">502</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,91 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,52 </td>
+<td align="center" class="tabelaConteudo2">510</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,90 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,54 </td>
+<td align="center" class="tabelaConteudo1">542</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,88 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,52 </td>
+<td align="center" class="tabelaConteudo2">544</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,87 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<td align="center" class="tabelaConteudo1">549</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,87 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,53 </td>
+<td align="center" class="tabelaConteudo2">571</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,86 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,51 </td>
+<td align="center" class="tabelaConteudo1">578</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,85 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,51 </td>
+<td align="center" class="tabelaConteudo2">594</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,84 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,54 </td>
+<td align="center" class="tabelaConteudo1">600</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,84 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,54 </td>
+<td align="center" class="tabelaConteudo2">607</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,84 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,50 </td>
+<td align="center" class="tabelaConteudo1">630</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,82 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,50 </td>
+<td align="center" class="tabelaConteudo2">640</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,82 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<td align="center" class="tabelaConteudo1">661</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,80 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,44 </td>
+<td align="center" class="tabelaConteudo2">670</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,80 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<td align="center" class="tabelaConteudo1">672</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,80 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,48 </td>
+<td align="center" class="tabelaConteudo2">689</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,79 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,39 </td>
+<td align="center" class="tabelaConteudo1">690</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,79 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,40 </td>
+<td align="center" class="tabelaConteudo2">700</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,79 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,43 </td>
+<td align="center" class="tabelaConteudo1">720</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,78 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,43 </td>
+<td align="center" class="tabelaConteudo2">731</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,78 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,35 </td>
+<td align="center" class="tabelaConteudo1">733</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,78 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,37 </td>
+<td align="center" class="tabelaConteudo2">752</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,77 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,37 </td>
+<td align="center" class="tabelaConteudo1">776</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,76 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<td align="center" class="tabelaConteudo2">780</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,76 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,35 </td>
+<td align="center" class="tabelaConteudo1">810</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,74 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,35 </td>
+<td align="center" class="tabelaConteudo2">822</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,73 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,33 </td>
+<td align="center" class="tabelaConteudo1">840</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,71 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,34 </td>
+<td align="center" class="tabelaConteudo2">867</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,70 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,34 </td>
+<td align="center" class="tabelaConteudo1">871</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,69 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,32 </td>
+<td align="center" class="tabelaConteudo2">900</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,68 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,33 </td>
+<td align="center" class="tabelaConteudo1">913</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,68 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,33 </td>
+<td align="center" class="tabelaConteudo2">930</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,67 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,36 </td>
+<td align="center" class="tabelaConteudo1">959</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,66 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,35 </td>
+<td align="center" class="tabelaConteudo2">962</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,66 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,32 </td>
+<td align="center" class="tabelaConteudo1">990</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,64 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,30 </td>
+<td align="center" class="tabelaConteudo2">1005</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,63 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,26 </td>
+<td align="center" class="tabelaConteudo1">1020</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,62 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,27 </td>
+<td align="center" class="tabelaConteudo2">1050</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,60 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,28 </td>
+<td align="center" class="tabelaConteudo1">1053</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,60 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,26 </td>
+<td align="center" class="tabelaConteudo2">1081</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,59 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,27 </td>
+<td align="center" class="tabelaConteudo1">1096</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,59 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,28 </td>
+<td align="center" class="tabelaConteudo2">1111</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,58 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,25 </td>
+<td align="center" class="tabelaConteudo1">1140</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,26 </td>
+<td align="center" class="tabelaConteudo2">1144</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,25 </td>
+<td align="center" class="tabelaConteudo1">1173</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo2">1186</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">1200</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,22 </td>
+<td align="center" class="tabelaConteudo2">1235</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,57 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,22 </td>
+<td align="center" class="tabelaConteudo1">1278</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,24 </td>
+<td align="center" class="tabelaConteudo2">1326</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,24 </td>
+<td align="center" class="tabelaConteudo1">1371</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,22 </td>
+<td align="center" class="tabelaConteudo2">1418</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,18 </td>
+<td align="center" class="tabelaConteudo1">1440</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,54 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,19 </td>
+<td align="center" class="tabelaConteudo2">1462</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,54 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,17 </td>
+<td align="center" class="tabelaConteudo1">1508</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,53 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,15 </td>
+<td align="center" class="tabelaConteudo2">1551</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,53 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,16 </td>
+<td align="center" class="tabelaConteudo1">1599</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,52 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,16 </td>
+<td align="center" class="tabelaConteudo2">1629</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,53 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,19 </td>
+<td align="center" class="tabelaConteudo1">1643</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,54 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo2">1690</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">1736</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo2">1783</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,18 </td>
+<td align="center" class="tabelaConteudo1">1802</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,18 </td>
+<td align="center" class="tabelaConteudo2">1827</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo1">1872</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,18 </td>
+<td align="center" class="tabelaConteudo2">1916</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,18 </td>
+<td align="center" class="tabelaConteudo1">1963</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,18 </td>
+<td align="center" class="tabelaConteudo2">2008</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">2103</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,22 </td>
+<td align="center" class="tabelaConteudo2">2148</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">2160</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo2">2194</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">2281</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo2">2373</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,22 </td>
+<td align="center" class="tabelaConteudo1">2467</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,23 </td>
+<td align="center" class="tabelaConteudo2">2513</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,23 </td>
+<td align="center" class="tabelaConteudo1">2520</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,56 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,23 </td>
+<td align="center" class="tabelaConteudo2">2558</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,55 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">2649</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,54 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo2">2740</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,53 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,21 </td>
+<td align="center" class="tabelaConteudo1">2832</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,52 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,19 </td>
+<td align="center" class="tabelaConteudo2">2880</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,51 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,19 </td>
+<td align="center" class="tabelaConteudo1">2923</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,51 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,20 </td>
+<td align="center" class="tabelaConteudo2">3013</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,49 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,17 </td>
+<td align="center" class="tabelaConteudo1">3104</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,48 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,17 </td>
+<td align="center" class="tabelaConteudo2">3197</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,47 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,15 </td>
+<td align="center" class="tabelaConteudo1">3240</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,16 </td>
+<td align="center" class="tabelaConteudo2">3244</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,15 </td>
+<td align="center" class="tabelaConteudo1">3288</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,16 </td>
+<td align="center" class="tabelaConteudo2">3377</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,14 </td>
+<td align="center" class="tabelaConteudo1">3469</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,15 </td>
+<td align="center" class="tabelaConteudo2">3562</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,15 </td>
+<td align="center" class="tabelaConteudo1">3602</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,14 </td>
+<td align="center" class="tabelaConteudo2">3609</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,46 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,13 </td>
+<td align="center" class="tabelaConteudo1">3653</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,45 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,12 </td>
+<td align="center" class="tabelaConteudo2">3742</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,43 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,11 </td>
+<td align="center" class="tabelaConteudo1">3834</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,42 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,10 </td>
+<td align="center" class="tabelaConteudo2">3927</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,40 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,08 </td>
+<td align="center" class="tabelaConteudo1">3960</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,39 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">3974</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,39 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">4018</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,39 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">4108</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,37 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,04 </td>
+<td align="center" class="tabelaConteudo1">4200</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,36 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,04 </td>
+<td align="center" class="tabelaConteudo2">4294</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,35 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,04 </td>
+<td align="center" class="tabelaConteudo1">4322</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,35 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,03 </td>
+<td align="center" class="tabelaConteudo2">4340</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,35 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,03 </td>
+<td align="center" class="tabelaConteudo1">4387</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,34 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,01 </td>
+<td align="center" class="tabelaConteudo2">4473</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,32 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,00 </td>
+<td align="center" class="tabelaConteudo1">4567</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,30 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,98 </td>
+<td align="center" class="tabelaConteudo2">4658</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,29 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,97 </td>
+<td align="center" class="tabelaConteudo1">4680</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,28 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,96 </td>
+<td align="center" class="tabelaConteudo2">4707</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,28 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,95 </td>
+<td align="center" class="tabelaConteudo1">4749</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,29 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+13,97 </td>
+<td align="center" class="tabelaConteudo2">4840</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,32 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+13,99 </td>
+<td align="center" class="tabelaConteudo1">4931</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,34 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,02 </td>
+<td align="center" class="tabelaConteudo2">5023</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,37 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,04 </td>
+<td align="center" class="tabelaConteudo1">5040</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,37 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,05 </td>
+<td align="center" class="tabelaConteudo2">5071</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">5114</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">5204</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">5295</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">5388</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">5400</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">5435</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">5479</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">5569</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">5582</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">5661</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">5754</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">5845</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">5934</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">6026</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">6121</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">6214</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">6299</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">6391</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">6485</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,08 </td>
+<td align="center" class="tabelaConteudo2">6576</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">6664</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">6758</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">6849</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">6940</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">7031</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">7122</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">7200</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">7215</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">7306</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,08 </td>
+<td align="center" class="tabelaConteudo2">7395</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">7487</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">7671</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">7852</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">8036</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">8217</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">8405</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">8585</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">8767</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">8949</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo2">9000</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">9132</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">9313</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo1">10800</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+<td align="center" class="tabelaConteudo2">11049</td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo2" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo2" nowrap="">
+14,06 </td>
+<td align="center" class="tabelaConteudo1">12967</td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,38 </td>
+<!-- td nowrap CLASS="tabelaConteudo1" width="< %=100\ubound(aTabela,1)%>%" -->
+<td align="center" class="tabelaConteudo1" nowrap="">
+14,07 </td>
+</table>
+<td align="RIGHT" valign="top" width="50%">
+</td>
+<!--</td>
+</tr> -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td class="TXT_Azul" height="20"> <br/>
+(1) Taxa efetiva para 360 dias corridos.<br/>
+(2) Taxa efetiva para 252 dias úteis.<br/>
+(3) Taxa linear para 360 dias corridos.<br/>
+(4) Taxa utilizada na apuraçăo do risco de crédito das operaçőes de
+<i>swap</i>, de que tratam a Resoluçăo 2399/97 e a Circular 2771/97,
+do Bacen.<br/>
+(5) Os valores divulgados săo obtidos com base em expectativa, năo em arbitragem.<br/>
+Ajuste cupom - Curva gerada a partir da interpolaçăo dos preços de ajuste do contrato futuro de cupom cambial.<br/>
+Ajuste pré - Curva gerada a partir da interpolaçăo dos preços de ajuste do contrato futuro de DI.</td>
+</tr>
+</table>
+<input name="convertexls1" type="hidden"/>
+<input name="nomexls" type="hidden"/>
+<input name="lQtdTabelas" type="hidden"/>
+<input name="IDIOMA" type="hidden" value="1"/>
+</form>
+<!-- InstanceEndEditable -->
+</body>
+<!-- InstanceEnd --></html>
+<script language="JavaScript">
+function mask_data() {
+	var keypressed = window.event.keyCode;
+	var ElementText  = window.event.srcElement.value ;
+	if( !(keypressed >= 47 && keypressed <= 57)) {
+		window.event.keyCode = 0;
+		return;
+    }
+	if (keypressed == 47){
+		if ((ElementText.length != 2) && (ElementText.length != 5)){
+			window.event.keyCode = 0;
+			return;
+		}
+	}
+	else{
+		if (ElementText.length == 2 || ElementText.length == 5){
+			window.event.srcElement.value += '/';
+		}
+	}
+}
+function ValidaData(data){
+	var dia = data.substring(0,2);
+	var mes = parseInt(data.substring(3,5),10)-1;
+	var ano = data.substring(6,10);
+	var d = new Date(ano,mes,dia);
+	var d1 = new Date(2025,2-1,18);
+	return (
+		(dia == d.getDate()) &&
+	 	(mes == d.getMonth()) &&
+		(ano == d.getFullYear()) &&
+		(ano >= 1900) &&
+		(d <= d1)
+	);
+}
+function EnviaForm(){
+	if (document.frmTxReferenciais.Data.value != '') {
+		if (ValidaData(document.frmTxReferenciais.Data.value))
+		{
+			var Data = document.frmTxReferenciais.Data.value;
+			var Data1 = document.frmTxReferenciais.Data1.value;
+			var slcTaxa = document.frmTxReferenciais.slcTaxa.value;
+			document.frmTxReferenciais.action = "TxRef1.asp" + "?Data=" + Data + "&Data1=" + Data1 + "&slcTaxa=" + slcTaxa;
+			document.frmTxReferenciais.submit();
+			return true;
+		}
+		else
+		{
+			alert ('Data Invalida');
+			return false;
+		}
+	}
+}
+function salvaxls(){
+	var lQtdTabelas = '1';
+	lQtdTabelas= parseInt(lQtdTabelas);
+	if(!isNaN(lQtdTabelas))	{
+		for(var i=1;i<lQtdTabelas+1;i++){
+			eval('document.frmTxReferenciais.convertexls' + i ).value = document.all['tb_principal' + i].innerHTML;
+		}
+		document.frmTxReferenciais.lQtdTabelas.value=lQtdTabelas;
+		document.frmTxReferenciais.action = 'GeraXlsTx.asp';
+		document.frmTxReferenciais.nomexls.value = 'PRE20250214';
+		document.frmTxReferenciais.submit();
+	}
+}
+function Busca(Indice)
+{	if (Indice != "23")
+	{
+		var Data = document.frmTxReferenciais.Data.value;
+		var Data1 = document.frmTxReferenciais.Data1.value;
+		var slcTaxa = document.frmTxReferenciais.slcTaxa.value;
+		document.frmTxReferenciais.action = "TxRef1.asp" + "?Data=" + Data + "&Data1=" + Data1 + "&slcTaxa=" + slcTaxa;
+		document.frmTxReferenciais.submit();
+	}
+	else
+	{
+		document.location.href = "TxRef1.asp";
+	}
+}
+function ImpremePagina()
+{
+	var pageLocal;
+	pageLocal = toString(document.location);
+	if((eval("'"+ document.location +"'.indexOf('?')"))>(0))
+	{
+		window.open(document.location +"&"+ "printThis=True", "JanelaImpreme");
+	}
+	else
+	{
+		window.open(document.location +"?"+ "printThis=True", "JanelaImpreme");
+	}
+}
+</script>

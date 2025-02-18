@@ -16,6 +16,7 @@ def _real(dt):
     -------
     data : yield curve for the given date
     """
+    url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=PRE'
     url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=DIC'
     html = pd.read_html(url, encoding='latin1')  # read B3 data
     data = None
@@ -128,8 +129,8 @@ def update():
         IPCA x Pré Swap negotiations 2005-01-01 until today.
 
     """
-    df_real_hist = pd.read_csv(r'./Data/BMF/ipca.csv', index_col=0)
-    df_nominal_hist = pd.read_csv(r'./Data/BMF/pre.csv', index_col=0)
+    df_real_hist = pd.read_csv(r'../../Data/BMF/ipca.csv', index_col=0)
+    df_nominal_hist = pd.read_csv(r'../../Data/BMF/pre.csv', index_col=0)
 
     df_real_hist.columns = df_real_hist.columns.astype('float64')
     df_real_hist.index = df_real_hist.index.astype('datetime64[ns]')

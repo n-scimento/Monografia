@@ -13,11 +13,7 @@ def folder():
 folder()
 # %%# Libraries
 
-import pandas as pd
-from bmf import real, nominal, update
-from visualization import dim_plot, flat_plot
-
-from bcb import bcb
+from apps.database.bcb import bcb
 
 bcb_download = bcb().bcb_download
 bcb_load = bcb().bcb_load

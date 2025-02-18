@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Next steps:
-    2D visualization
-    Surface visualization
-"""
 #%%# Reading data and setting libraries
 import pandas as pd
 import plotly.graph_objects as go

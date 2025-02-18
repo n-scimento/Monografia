@@ -1,9 +1,7 @@
 services:
-  py13:
+  python:
     build:
       context: .
       dockerfile: DOCKERFILE
     volumes:
-      - "/home/nascimento/Documents/Monografia:/app"
-    ports:
-      - "36649:36649"
+      - "/home/yoav/PycharmProjects/Monografia:/app"

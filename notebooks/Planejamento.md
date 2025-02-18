@@ -1,11 +1,19 @@
+## 25-02-17
+
+- [ ] Garantir que todos os códigos estão funcionando
+- [ ] Atualizar bases de dados até o final de 2024
+- [ ] Testar interpolações simples
+- [ ] Procurar mais sobre o método geométrico estabelecido no paper da ANBIMA
+
+
 ## 24-06-27
 
-## To-do
+### To-do
 
--   [ ] Organizar pastas
--   [ ] Instalar Git e fazer backup
--   [ ] Instalar bibliotecas Python
--   [ ] Instalar RStudio
+-   [x] Organizar pastas
+-   [x] Instalar Git e fazer backup
+-   [x] Instalar bibliotecas Python
+-   [x] Instalar RStudio
 
 ------------------------------------------------------------------------
 

@@ -48,7 +48,7 @@ import threading
 
 # %%# Função de download
 
-class bcb():
+class BCB:
 
     def __init__(self):
 
