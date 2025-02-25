@@ -1,3 +1,12 @@
+
+# Docker
+
+## New libraries
+docker-compose up --build --remove-orphans
+(click at "Remote Python...")
+
+# Git
+
 ## Updating project
 
 1. git add .
