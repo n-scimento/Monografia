@@ -1,162 +1,117 @@
-import warnings
+import requests
 import pandas as pd
-import numpy as np
-
-warnings.filterwarnings("ignore")
-
-
-# %%# Extração Swap Pré x IPCA
-def _real(dt):
-    """
-    Parameters
-    ----------
-    dt : "dd/mm/yyyy"
-
-    Returns
-    -------
-    data : yield curve for the given date
-    """
-    url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=PRE'
-    url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=DIC'
-    html = pd.read_html(url, encoding='latin1')  # read B3 data
-    data = None
-    print(f'- Extraindo negociações de Swap DI X IPCA para o dia {dt}')
-
-    if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
-        data_list = [float(taxa) for taxa in
-                     list(html[1][0])[0].replace('Dias Corridos DI x IPCA 252(2) ', '').replace('Dias Corridos 252(2) ',
-                                                                                                '').replace(',',
-                                                                                                            '.').split(
-                         ' ')]  # get data and cleaning it
-        n = 0
-        data = []
-
-        while n + 2 < len(data_list):
-            data.append(np.array(data_list[n: n + 2]).astype('float64'))  # appending data (?)
-            n += 2
-
-        data = pd.DataFrame(data, columns=['TenorsDays', 'bd252'])  # data cleaning and formatting
-        data['Date'] = [dt for n in range(len(data))]
-
-        if (type(data) != type(None)):
-            data = pd.pivot_table(data, values='bd252', index='Date', columns=['TenorsDays']).sort_values(
-                by='Date')  # format new data with pivot table
-            data.columns = data.columns.astype('float64')  # format columns
-            data.index = pd.to_datetime(data.index, format='%d/%m/%Y')
-    return data
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
+import concurrent.futures
+import time
 
 
-# %%# Extração Swap Pré X DI
-def _nominal(dt):
-    """
-    Parameters
-    ----------
-    dt : "dd/mm/yyyy"
+class BMF:
 
-    Returns
-    -------
-    data : yield curve for the given date
-    """
-    url = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data={dt}&slcTaxa=PRE'
-    html = pd.read_html(url, encoding='latin1')  # read B3 data
-    data = None
-    print(f'- Extraindo negociações de Swap DI X Pré para o dia {dt}')
+    def __init__(self, rate='PRE', du=True):
+        self.rate = rate
+        self.du = du
+        self.url_main = f'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp'
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Referer': 'https://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp?Data=23%2F02%2F2025&slcTaxa=PRE',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': 'https://www2.bmf.com.br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-User': '?1',
+            'Priority': 'u=0, i',
+        }
 
-    if 'Não há dados para a data fornecida!' not in list(html[1].iloc[0]):
-        data_list = list(html[1][0])[0].replace('Dias Corridos DI x pré 252(2)(4) 360(1) ', '').replace(
-            'Dias Corridos PRExDI 252(2)(4) 360(1) ', '').replace(',', '.').split(' ')  # get data and cleaning it
-        n = 0
-        data = []
+    def parse_html(self, soup):
 
-        while n + 3 < len(data_list):
-            data.append(np.array(data_list[n: n + 3]).astype('float64'))  # appending data (?)
-            n += 3
+        def parse_table(table_data):
+            return {table_data[i]: table_data[i + 1 if self.du else 2] for i in range(0, len(table_data), 3)}
 
-        data = pd.DataFrame(data, columns=['TenorsDays', 'bd252', 'act360'])  # data cleaning and formatting
-        data['Date'] = [dt for n in range(len(data))]
-        if (type(data) != type(None)):
-            data = pd.pivot_table(data, values='bd252', index='Date', columns=['TenorsDays']).sort_values(
-                by='Date')  # format new data with pivot table
-            data.columns = data.columns.astype('float64')  # format columns
-            data.index = pd.to_datetime(data.index, format='%d/%m/%Y')
-    return data
+        rows_i = [float(item.get_text().replace(',', '.')) for item in soup.find_all('td', class_='tabelaConteudo1')]
+        rows_ii = [float(item.get_text().replace(',', '.')) for item in soup.find_all('td', class_='tabelaConteudo2')]
 
+        return {**parse_table(rows_i), **parse_table(rows_ii)}
 
-# %%# Solicitação da curva para um dia ou para um período
+    def get_date(self, date=datetime.now().strftime("%Y-%m-%d")):
 
-def _yield(function, start_date, end_date=None):
-    """
-    Parameters
-    ----------
-    start_date: "yyyy-mm-dd"
-    end_date: "yyyy-mm-dd" (optional)
-    
-        
-    Returns
-    -------
-    data: yield curve for the given date or range
-    """
+        params = {
+            'Data': datetime.strptime(date, "%Y-%m-%d").strftime("%d/%m/%Y"),
+            'slcTaxa': self.rate,
+        }
 
-    df = []
+        response = requests.get(
+            self.url_main,
+            headers=self.headers,
+            params=params,
+            timeout=10
+        )
 
-    date_list = pd.date_range(start=start_date, end=start_date if end_date is None else end_date)
+        print(date)
 
-    for dt in date_list:
+        soup = BeautifulSoup(response.content, 'html.parser')
 
-        dt = dt.strftime('%d/%m/%Y')
-        df_rate = globals()[function](dt)
-        df = df_rate if not len(df) else pd.concat([df, df_rate])
+        return {date: self.parse_html(soup)}
 
-        if df is None:
-            print(f'Nenhum dado disponível para {dt}')
-            df = []
-        else:
-            df = df.reindex(columns=sorted(list(df.columns))) if not df.empty else df
-    return df
+    def _generate_date_range(self, start_date, end_date):
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        return [(start + timedelta(days=i)).strftime("%Y-%m-%d") for i in range((end - start).days + 1)]
 
+    def _fetch_date(self, date):
+        while True:
+            try:
+                return self.get_date(date=date)
 
-# %%# Update da base de dados
+            except requests.exceptions.SSLError:
+                time.sleep(10)
 
-def update():
-    """
-    It updates the swap's database until today, overwriting the used file.
+            except requests.exceptions.ConnectionError as e:
+                if "NameResolutionError" in str(e) or "Failed to resolve" in str(e):
+                    print(f"DNS resolution failed for {date}. Retrying...")
+                    time.sleep(5)
+                    continue
+                else:
+                    print(f"Connection error for {date}: {e}")
+                    return {date: None}
 
-    Returns
-    -------
-    df_nominal : pandas dataframe
-        DI x Pré Swap negotiations 2005-01-01 until today.
-    df_real : pandas dataframe.
-        IPCA x Pré Swap negotiations 2005-01-01 until today.
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching data for {date}: {e}")
+                return {date: None}
+            except ValueError:
+                return {date: None}
 
-    """
-    df_real_hist = pd.read_csv(r'../../Data/BMF/ipca.csv', index_col=0)
-    df_nominal_hist = pd.read_csv(r'../../Data/BMF/pre.csv', index_col=0)
+    def get_range(self, start_date=None, end_date=datetime.now().strftime("%Y-%m-%d"), dates=None, max_workers=10):
 
-    df_real_hist.columns = df_real_hist.columns.astype('float64')
-    df_real_hist.index = df_real_hist.index.astype('datetime64[ns]')
+        if not dates:
+            dates = self._generate_date_range(start_date=start_date, end_date=end_date)
 
-    df_nominal_hist.columns = df_nominal_hist.columns.astype('float64')
-    df_nominal_hist.index = df_nominal_hist.index.astype('datetime64[ns]')
+        data = {}
 
-    print(
-        f'Atualizando a base de dados de {df_nominal_hist.iloc[-1].name.strftime("%Y-%m-%d")} até {pd.Timestamp.now().date().strftime("%Y-%m-%d")}')
-    df_nominal_update = nominal(df_nominal_hist.iloc[-1].name.strftime('%Y-%m-%d'),
-                                pd.Timestamp.now().date().strftime('%Y-%m-%d'))
-    df_real_update = real(df_real_hist.iloc[-1].name.strftime('%Y-%m-%d'),
-                          pd.Timestamp.now().date().strftime('%Y-%m-%d'))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_date = {executor.submit(self._fetch_date, date): date for date in dates}
 
-    df_nominal = pd.concat([df_nominal_hist, df_nominal_update]).reset_index().drop_duplicates(subset='Date',
-                                                                                               keep='first').set_index(
-        'Date')
-    df_real = pd.concat([df_real_hist, df_real_update]).reset_index().drop_duplicates(subset='Date',
-                                                                                      keep='first').set_index('Date')
+            for future in concurrent.futures.as_completed(future_to_date):
+                obs = future.result()
+                data.update(obs)
 
-    print('Base atualizada! Salvação em andamento.')
-    df_nominal.to_csv(r'./Data/BMF/pre.csv')
-    df_real.to_csv(r'./Data/BMF/ipca.csv')
+        return data
 
-    return df_nominal, df_real
+    def parse_dataframe(self, data):
+        df = pd.DataFrame(data)
+        df = df.sort_index(ascending=True)
+        df = df.dropna(axis=1, how='all')
+        df = df[sorted(df.columns, key=pd.to_datetime)]
+        return df
 
+    def get_dataframe(self, start_date=None, end_date=datetime.now().strftime("%Y-%m-%d"), dates=None, max_workers=10):
+        return self.parse_dataframe(
+            self.get_range(start_date=start_date, end_date=end_date, dates=dates, max_workers=max_workers))
 
-real = lambda start_date, end_date: _yield('_real', start_date, end_date)
-nominal = lambda start_date, end_date: _yield('_nominal', start_date, end_date)
+    # Todo: Try genetic algorithm
+    # Todo: just build the whole historic after having the interpolation code
