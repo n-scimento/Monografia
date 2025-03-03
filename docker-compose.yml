@@ -5,3 +5,18 @@ services:
       dockerfile: DOCKERFILE
     volumes:
       - "/home/yoav/PycharmProjects/Monografia:/app"
+
+#services:
+#  python:
+#    build:
+#      context: .
+#      dockerfile: DOCKERFILE
+#    volumes:
+#      - "/home/yoav/PycharmProjects/Monografia:/app"
+#      - "/tmp/.X11-unix:/tmp/.X11-unix"  # For XWayland support
+#      - "${XDG_RUNTIME_DIR}/wayland-0:/tmp/wayland-0"  # Share Wayland socket
+#    environment:
+#      - DISPLAY=${DISPLAY}  # Use host display
+#      - WAYLAND_DISPLAY=wayland-0  # Tell apps to use Wayland
+#      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}  # Wayland runtime directory
+#      - QT_QPA_PLATFORM=wayland  # If using Qt apps
