@@ -9,12 +9,11 @@ def interpolate(data, date):
     if isinstance(data, DataFrame):
         df = data.loc[:,date]
         df = df.dropna(how='all')
+        df = df.loc[df.index <= 3600]  # Keep only rows where index ≤ 3600
         t = np.array(df.index)
         y = np.array(df)
-        curve, status = calibrate_nss_ols(t, y)  # starting value of 1.0 for the optimization of tau
-        # assert status.success
-        # print(curve)
-        return curve
+        curve, status = calibrate_nss_ols(t, y)
+        return curve, y, t
 
     #     print('Dataframe')
     #
