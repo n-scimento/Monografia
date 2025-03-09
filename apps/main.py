@@ -27,3 +27,5 @@ for rate in rates:
             elif not curve:
                 print(f'\n----------\n{date} | {rate} | {du}: {curve}')
                 print(f'{y}\n----------\n')
+                # TODO: algumas curvas não estão fittando; descobrir como passar os parametros
+                # TODO: se conseguir passar os parametros, descobrir o metodogenetico (aquela library la)s
