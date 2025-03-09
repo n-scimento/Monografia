@@ -4,20 +4,26 @@ from apps.database.bmf import BMF
 from apps.data_managing.pkl import Pickle
 from apps.plots.plot import plot_curve
 
-bmf_pre_du = BMF(rate='PRE', du=True)
-bmf_pre_dc = BMF(rate='PRE', du=False)
-bmf_ipca_du = BMF(rate='DIC', du=True)
-bmf_ipca_dc = BMF(rate='DIC', du=False)
-
-
 pkl = Pickle()
 
-date = '2025-02-24'
-rate = ['PRE', 'IPCA']
-dates = ['new branch :)']
+start_date = '2025-02-24'
+end_date = '2025-02-28'
 
-for date in dates:
-    df = pkl.load(name='df')
+dus = [True, False]
+rates = ['PRE', 'DIC']
 
-    curve, y, t = interpolate(df, date)
-    plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}')
+for rate in rates:
+    for du in dus:
+        print(f'\n--------\n{rate} - Du:{du}')
+        df = BMF(rate=rate, du=du).get_dataframe(start_date=start_date, end_date=end_date)
+        pkl.save(name=f'{rate}_{'du' if du else 'dc'}', df=df)
+
+        for date in df.columns:
+            print(f'- {date}: starting')
+            curve, y, t = interpolate(df, date)
+            if curve:
+                plot_curve(curve, y, t, output_name=f'{date}_{rate}_{'du' if du else 'dc'}')
+                print(f' - {date}: done!')
+            elif not curve:
+                print(f'\n----------\n{date} | {rate} | {du}: {curve}')
+                print(f'{y}\n----------\n')

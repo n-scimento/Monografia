@@ -31,7 +31,7 @@ class BMF:
     def parse_html(self, soup):
 
         def parse_table(table_data):
-            return {table_data[i]: table_data[i + 1 if self.du else 2] for i in range(0, len(table_data), 3)}
+            return {table_data[i]: table_data[i + 1 if self.du else i + 2] for i in range(0, len(table_data), 3)}
 
         rows_i = [float(item.get_text().replace(',', '.')) for item in soup.find_all('td', class_='tabelaConteudo1')]
         rows_ii = [float(item.get_text().replace(',', '.')) for item in soup.find_all('td', class_='tabelaConteudo2')]
@@ -51,8 +51,6 @@ class BMF:
             params=params,
             timeout=10
         )
-
-        print(date)
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -99,7 +97,6 @@ class BMF:
             for future in concurrent.futures.as_completed(future_to_date):
                 obs = future.result()
                 data.update(obs)
-
         return data
 
     def parse_dataframe(self, data):
