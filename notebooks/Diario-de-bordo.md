@@ -1,5 +1,19 @@
 # Diário de bordo
 
+## 2025-03-10
+
+Encontro-me meio perdido. Tenho como estimar os betas de maneira fácil, preciso apenas otimizar os taus.
+Ideias: 
+1. Começo pelo tau; vejo o fit, uso algoritmo genético/mqo para estimar novamente: como aplicar?
+2. Ver como foi feito no artigo que o professor me passou para usar como base!!!
+3. Assim que tiver conseguido um fit ok, escrever:
+   - Justificar base usada: como os dados são obtidos e calculados
+   - Justificar escolha do NSS
+   - Justificar modelado do NSS: metodologia da ANBIMA será de grande uso
+
+- [ ] Adicionar papers já usados ao LaTeX!
+- [ ] Dado que já sei como calcular os betas via OLS e dada a biblioteca, ver como foi feito no artigo que o professor me passou
+
 ## 2024-07-27
 - [ ] Conseguir plottar gráficos 2D: scattered e line; para qualquer número de séries
  - Para isso, criar uma função que receba "n" número de argumentos
