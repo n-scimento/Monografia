@@ -6,7 +6,7 @@ class Pickle:
         pass
 
     def save(self, df, name):
-        df.to_pickle(f"data_managing/files/{name}.pkl")
+        df.to_pickle(f"apps/data_managing/files/{name}.pkl")
 
     def load(self, name):
-        return pd.read_pickle(f"data_managing/files/{name}.pkl")
+        return pd.read_pickle(f"apps/data_managing/files/{name}.pkl")

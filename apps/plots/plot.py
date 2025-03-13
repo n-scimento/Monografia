@@ -15,5 +15,5 @@ def plot_curve(curve, y, t, output_name='plot'):
     plt.title("Nelson-Siegel-Svensson Yield Curve Calibration")
     plt.legend()
     plt.grid()
-    plt.savefig(f"plots/images/{output_name}.png")
+    plt.savefig(f"plots/{output_name}.png")
     return plt

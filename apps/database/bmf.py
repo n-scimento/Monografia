@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import concurrent.futures
 import time
-
+import json
 
 class BMF:
 
@@ -64,7 +64,16 @@ class BMF:
     def _fetch_date(self, date):
         while True:
             try:
-                return self.get_date(date=date)
+                data = self.get_date(date=date)
+                du = 'du' if self.du else 'dc'
+                root_path = f"data/{self.rate}/{du}/"
+                file_path = f"{date}_{self.rate}_{du}.json"
+
+                with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
+                    json.dump(data, json_file, ensure_ascii=False, indent=4)
+                    print(f'Saved at: {(root_path + file_path).lower()}' )
+
+                return data
 
             except requests.exceptions.SSLError:
                 time.sleep(10)
