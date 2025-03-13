@@ -11,6 +11,7 @@ def plot_curve(curve, y, t, output_name='plot'):
     plt.plot(t_fit, y_fit, label='Fitted NSS Curve', linestyle='--')
     plt.xlabel("Maturity (Years)")
     plt.xlim(0, 3600)  # Set x-axis limit
+    plt.xlim(0, 15)
     plt.ylabel("Yield (%)")
     plt.title("Nelson-Siegel-Svensson Yield Curve Calibration")
     plt.legend()
