@@ -2,6 +2,8 @@ from apps.database.bmf import BMF
 import numpy as np
 from nelson_siegel_svensson.calibrate import calibrate_nss_ols
 from nelson_siegel_svensson.calibrate import calibrate_ns_ols
+from nelson_siegel_svensson.calibrate import betas_nss_ols
+
 
 import json
 import os
@@ -101,13 +103,13 @@ def fit_yield(rate, du):
     for date, file in zip(dates, files):
         data, t, y = read_json(date, rate, du)
         try:
-            curve, status = calibrate_ns_ols(t=t, y=y)
+            curve, status = calibrate_nss_ols(t=t, y=y)
         except Exception as e:
             print(f'\n\n{date} | {rate} | {du}: {e}\n\n')
             curve = None
 
         if curve:
-            plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}', date=date, rate=rate)
+            plot_curve(curve, y, t, output_name=f'{date}_nss_{rate}_{du}', date=date, rate=rate)
 
             params = {
                 'b0': float(curve.beta0),
@@ -228,3 +230,36 @@ yield_1 = fit_yield('pre', 'du')
 #
 #
 #
+
+path_bmf = f'data/bmf/pre/du/'
+files_bmf = os.listdir(path_bmf)
+files_bmf = [file for file in files_bmf if os.path.isfile(os.path.join(path_bmf, file))]
+dates_bmf = [file[:10] for file in files_bmf]
+
+path_yield = f'data/yield/pre/du/'
+files_yield = os.listdir(path_yield)
+files_yield = [file for file in files_yield if os.path.isfile(os.path.join(path_yield, file))]
+dates_yield = [file[:10] for file in files_yield]
+
+dates_missing = [date for date in dates_bmf if date not in dates_yield]
+files_missing = [f'data/bmf/pre/du/{date}_pre_du.json' for date in dates_missing]
+
+['2011-06-24', '2011-10-28', '2015-02-26']
+
+for date, file in zip(dates_missing, files_missing):
+    rate = 'pre'
+    du = 'du'
+    data, t, y = read_json(date, rate, du)
+    curve, status = betas_nss_ols(t=t, y=y, tau=(0.03, 0.42))
+    plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}', date=date, rate=rate)
+
+
+
+
+date = '2008-08-06'
+rate = 'pre'
+du = 'du'
+data, t, y = read_json(date, rate, du)
+curve, status = calibrate_nss_ols(t=t, y=y)
+plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}_nss', date=date, rate=rate)
+
