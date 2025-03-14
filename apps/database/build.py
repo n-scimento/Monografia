@@ -115,9 +115,9 @@ def fit_yield(rate, du):
                 'b0': float(curve.beta0),
                 'b1': float(curve.beta1),
                 'b2': float(curve.beta2),
-                # 'b3': float(curve.beta3),
-                'tau': float(curve.tau),
-                # 't2': float(curve.tau2),
+                'b3': float(curve.beta3),
+                't1': float(curve.tau1),
+                't2': float(curve.tau2),
             }
             yield_parameters[date] = params
 
