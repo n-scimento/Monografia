@@ -121,13 +121,13 @@ def fit_yield(rate, du):
             }
             yield_parameters[date] = params
 
-            root_path = f"data/yield/{rate}/{du}/"
+            root_path = f"data/yield/nss/{rate}/{du}/"
             file_path = f"{date}_{rate}_{du}.json"
 
-            #
-            # with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
-            #     json.dump(params, json_file, ensure_ascii=False, indent=4)
-            #     print(f'Saved at: {(root_path + file_path).lower()}')
+
+            with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
+                json.dump(params, json_file, ensure_ascii=False, indent=4)
+                print(f'Saved at: {(root_path + file_path).lower()}')
 
             print(f' - {date}: done!')
 
