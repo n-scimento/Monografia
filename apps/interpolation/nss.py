@@ -13,11 +13,9 @@ def interpolate(data, date):
         t = np.array(df.index)
         y = np.array(df)
         try:
+
             curve, status = calibrate_nss_ols(t, y)
-            # aplicaria algoritmo genético aqui
-            # primeiro rodaria para esse número e iria tentando outros
-            # curve, status = betas_nss_ols((2.0, 5.0), t, y)
-            # TODO: https://medium.com/@polanitzer/nelson-siegel-svensson-in-python-estimating-the-spot-rate-curve-using-the-nelson-siegel-svensson-4753969e61c8
+
             return curve, y, t
         except np.linalg.LinAlgError as e:
             print(f"Interpolation failed: {e}")
