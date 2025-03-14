@@ -2,19 +2,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_curve(curve, y, t, output_name='plot'):
+def plot_curve(curve, y, t, date, rate, output_name='plot'):
+
+    if rate == 'pre':
+        rate = 'DI x Pré'
+    elif rate == 'dic':
+        rate ='DI x IPCA'
     t_fit = np.linspace(0, 12000, 12000)
     y_fit = curve(t_fit)
 
     plt.figure(figsize=(8, 5))
-    plt.scatter(t, y, color='red', label='Observed Yields')
-    plt.plot(t_fit, y_fit, label='Fitted NSS Curve', linestyle='--')
-    plt.xlabel("Maturity (Years)")
-    plt.xlim(0, 3600)  # Set x-axis limit
-    plt.xlim(0, 15)
-    plt.ylabel("Yield (%)")
-    plt.title("Nelson-Siegel-Svensson Yield Curve Calibration")
+    plt.scatter(t, y, color='red', label='ETTJ Observada')
+    plt.plot(t_fit, y_fit, label='NSS', linestyle='--')
+    plt.xlabel("Vértice em DU")
+    plt.xlim(0, 3600)  # Define o limite do eixo x
+    plt.ylim(0, 20)
+    plt.ylabel("Taxa ao ano (%)")
+    plt.title(f"{date} - Calibração da Curva Nelson-Siegel ({rate})")
     plt.legend()
     plt.grid()
-    plt.savefig(f"plots/{output_name}.png")
+    plt.savefig(f"plot_ns/{output_name}.png")
     return plt
