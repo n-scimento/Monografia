@@ -31,7 +31,7 @@ class BMF:
     def parse_html(self, soup):
 
         def parse_table(table_data):
-            return {table_data[i]: table_data[i + 1 if self.du else i + 2] for i in range(0, len(table_data), 3)}
+            return {table_data[i]: table_data[i + 1 if self.du else i + 2] for i in range(0, len(table_data), 3 if self.rate == 'PRE' else 2)}
 
         rows_i = [float(item.get_text().replace(',', '.')) for item in soup.find_all('td', class_='tabelaConteudo1')]
         rows_ii = [float(item.get_text().replace(',', '.')) for item in soup.find_all('td', class_='tabelaConteudo2')]
@@ -53,7 +53,11 @@ class BMF:
         )
 
         soup = BeautifulSoup(response.content, 'html.parser')
-
+        #
+        # if self.rate == "PRE":
+        #     data =
+        # elif self.rate == "DIC":
+        #     data = {date: self.parse_html_pre(soup)}
         return {date: self.parse_html(soup)}
 
     def _generate_date_range(self, start_date, end_date):
@@ -66,7 +70,7 @@ class BMF:
             try:
                 data = self.get_date(date=date)
                 du = 'du' if self.du else 'dc'
-                root_path = f"data/{self.rate}/{du}/"
+                root_path = f"data/bmf/{self.rate}/{du}/"
                 file_path = f"{date}_{self.rate}_{du}.json"
 
                 with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
@@ -75,7 +79,8 @@ class BMF:
 
                 return data
 
-            except requests.exceptions.SSLError:
+            except requests.exceptions.SSLError as e:
+                print(f'Error: {e}')
                 time.sleep(10)
 
             except requests.exceptions.ConnectionError as e:
@@ -90,14 +95,18 @@ class BMF:
             except requests.exceptions.RequestException as e:
                 print(f"Error fetching data for {date}: {e}")
                 return {date: None}
-            except ValueError:
+            except ValueError as e:
+                print('Error: ',date,  e)
                 return {date: None}
 
-    def get_range(self, start_date=None, end_date=datetime.now().strftime("%Y-%m-%d"), dates=None, max_workers=10):
+    def get_range(self, start_date=None, end_date=datetime.now().strftime("%Y-%m-%d"), dates=None, dates_stored=None, max_workers=10):
 
+        if dates_stored is None:
+            dates_stored = []
         if not dates:
             dates = self._generate_date_range(start_date=start_date, end_date=end_date)
 
+        dates = [date for date in dates if date not in dates_stored]
         data = {}
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
