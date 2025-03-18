@@ -23,5 +23,5 @@ def plot_curve(curve, y, t, date, rate, output_name='plot'):
     plt.title(f"{date} - Calibração da Curva Nelson-Siegel-Svensson ({rate})")
     plt.legend()
     plt.grid()
-    plt.savefig(f"plots/{output_name}.png")
+    plt.savefig(f"plots_fixed/{output_name}.png")
     return plt

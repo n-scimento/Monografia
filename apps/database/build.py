@@ -1,5 +1,5 @@
 import numpy as np
-# from nelson_siegel_svensson.calibrate import calibrate_nss_ols
+from nelson_siegel_svensson.calibrate import betas_nss_ols
 from apps.interpolation.nss_library.calibrate import calibrate_nss_ols
 import json
 import os
@@ -30,7 +30,7 @@ def fit_yield(rate, du):
     path = f'data/bmf/{rate.lower()}/{du}/'
     files = os.listdir(path)
     files = [file for file in files if os.path.isfile(os.path.join(path, file))]
-    cutoff_date = '2020-09-01'
+    cutoff_date = '2018-09-26'
     dates = [date[:10] for date in files if date[:10] >= cutoff_date]
 
     for date, file in zip(dates, files):
@@ -71,7 +71,7 @@ def fit_yield(rate, du):
         }
         yield_parameters[date] = params
 
-        root_path = f"data/yield/nss/{rate}/{du}/"
+        root_path = f"data/yield/nss/{rate}/{du}_fixed/"
         file_path = f"{date}_{rate}_{du}.json"
 
         with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
@@ -93,7 +93,7 @@ rate = 'pre'
 du = 'du'
 yield_1 = fit_yield(rate, du)
 
-path = f"data/yield/nss/{rate}/{du}/"
+path = f"data/yield/nss/{rate}/{du}_fixed/"
 files = os.listdir(path)
 files = [file for file in files if os.path.isfile(os.path.join(path, file))]
 
@@ -105,7 +105,7 @@ for file in files:
         df_list.append(pd.DataFrame([data]))  # Convert to DataFrame and append
 
 df = pd.concat(df_list, ignore_index=True)
-
+df.to_csv('nss_parameters_bounded.csv')
 # %% Testes
 
 dates = ['2022-04-11']
@@ -138,7 +138,7 @@ for method in methods:
             rate = 'pre'
             du = 'du'
             data, t, y = read_json(date, rate, du)
-            curve, status = calibrate_nss_ols(t=t, y=y, method=method)
+            curve, status = betas_nss_ols(t=t, y=y , )#, method=method)
             betas0.append(round(curve.beta0,2))
             betas1.append(round(curve.beta1,2))
             betas2.append(round(curve.beta2,2))
