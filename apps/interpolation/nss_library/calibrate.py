@@ -107,6 +107,6 @@ def calibrate_nss_ols(
 
     # bounds = [(0, 1), (0, 1)]  # tau1 and tau2 are bounded between 0 and 1
 
-    opt_res = minimize(errorfn_nss_ols, x0=np.array(tau0), args=(t, y), method=method) #, bounds=bounds)
+    opt_res = minimize(errorfn_nss_ols, x0=np.array(tau0), args=(t, y), method=method)
     curve, lstsq_res = betas_nss_ols(opt_res.x, t, y)
     return curve, opt_res
