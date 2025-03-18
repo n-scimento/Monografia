@@ -9,8 +9,8 @@ def interpolate(data, date):
         df = data.loc[:, date]
         df = df.dropna(how='all')
         df = df.loc[df.index <= 3600]
-        df = df.loc[df.index > 1]
-        df = df[df != 0.0]
+        # df = df.loc[df.index > 1]
+        # df = df[df != 0.0]
         t = np.array(df.index)
         y = np.array(df)
 
