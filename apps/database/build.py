@@ -37,28 +37,54 @@ def fit_yield(rate, du):
         data, t, y = read_json(date, rate, du)
 
         print(f'\n-------\n{date}\n-------------------------------')
+
         def try_calibrate(method, t, y):
             curve, status = calibrate_nss_ols(t=t, y=y, method=method)
+            if any(beta > 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]):
+                print(f"-- Parameters too high with {method}, ignoring this method: {curve}")
+                return None, None, 1000000
 
-            if any(beta < -1.0 or beta > 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]):
-                print(f"-- Parameters too high with {method}, moving to the next method: {curve}")
-                return None, None
-
-            return curve, status
+            error = np.sum((curve(t) - y) ** 2)
+            return curve, status, error
 
         methods = ["TNC", "COBYQA", "POWELL", "BFGS", "L-BFGS-B", "CG", "SLSQP"]
-        curve, status = None, None
+        best_curve, best_status, best_error = None, None, 1000000
 
         for method in methods:
             try:
-                curve, status = try_calibrate(method, t, y)
-                if curve is not None:
-                    break
+                curve, status, error = try_calibrate(method, t, y)
+                if curve is not None and error < best_error:
+                    best_curve, best_status, best_error = curve, status, error
             except np.linalg.LinAlgError:
-                print(f"-- {method} failed due to LinAlgError, trying the next method.")
+                print(f"-- {method} failed due to LinAlgError, skipping this method.")
 
-        if curve is None:
-            raise ValueError("All methods failed.")
+        if best_curve is None:
+            raise ValueError("All methods failed or had invalid parameters.")
+
+        curve = best_curve
+        # def try_calibrate(method, t, y):
+        #     curve, status = calibrate_nss_ols(t=t, y=y, method=method)
+        #
+        #     if any(beta < -1.0 or beta > 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]):
+        #         print(f"-- Parameters too high with {method}, moving to the next method: {curve}")
+        #         return None, None
+        #
+        #     return curve, status
+        #
+        # methods = ["TNC", "COBYQA", "POWELL", "BFGS", "L-BFGS-B", "CG", "SLSQP"]
+        # curve, status = None, None
+        #
+        # for method in methods:
+        #     try:
+        #         curve, status = try_calibrate(method, t, y)
+        #         if curve is not None:
+        #             break
+        #     except np.linalg.LinAlgError:
+        #         print(f"-- {method} failed due to LinAlgError, trying the next method.")
+        #
+        # if curve is None:
+        #     raise ValueError("All methods failed.")
+
         plot_curve(curve, y, t, output_name=f'{date}_nss_{rate}_{du}', date=date, rate=rate)
 
         params = {
@@ -71,7 +97,7 @@ def fit_yield(rate, du):
         }
         yield_parameters[date] = params
 
-        root_path = f"data/yield/nss/{rate}/{du}_fixed/"
+        root_path = f"data/yield/nss/{rate}/{du}_comparative/"
         file_path = f"{date}_{rate}_{du}.json"
 
         with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
@@ -80,14 +106,13 @@ def fit_yield(rate, du):
 
         print(f' - {date}: done!')
 
-    root_path = f"data/yield/"
-    file_path = f"{rate}_{du}.json"
+    # root_path = f"data/yield/"
+    # file_path = f"{rate}_{du}.json"
     #
     # with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
     #     json.dump(yield_parameters, json_file, ensure_ascii=False, indent=4)
     #     print(f'Saved at: {(root_path + file_path).lower()}')
-
-    return yield_parameters
+    return
 
 rate = 'pre'
 du = 'du'
@@ -105,7 +130,7 @@ for file in files:
         df_list.append(pd.DataFrame([data]))  # Convert to DataFrame and append
 
 df = pd.concat(df_list, ignore_index=True)
-df.to_csv('nss_parameters_bounded.csv')
+df.to_csv('nss_parameters_comparative.csv')
 # %% Testes
 
 dates = ['2022-04-11']
@@ -156,3 +181,7 @@ for method in methods:
     print(f"Beta 3 {betas3}")
     print(f"Theta 1 {thetas1}")
     print(f"Theta 2 {thetas2}")
+
+date = '2022-04-11'
+data, t, y = read_json(date, rate, du)
+curve, status = calibrate_nss_ols(t=t, y=y, method='TNC') #, method=method)
