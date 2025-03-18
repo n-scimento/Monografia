@@ -1,7 +1,7 @@
 from apps.database.bmf import BMF
 import numpy as np
-from nelson_siegel_svensson.calibrate import calibrate_nss_ols
-# from apps.interpolation.nss_library.calibrate import calibrate_nss_ols
+# from nelson_siegel_svensson.calibrate import calibrate_nss_ols
+from apps.interpolation.nss_library.calibrate import calibrate_nss_ols
 import json
 import os
 import pandas as pd
@@ -26,56 +26,57 @@ def read_json(date, rate, du):
     return data, t, y / 100
 
 
-# def fit_yield(rate, du):
-#     yield_parameters = {}
-#
-#     path = f'data/bmf/{rate.lower()}/{du}/'
-#     files = os.listdir(path)
-#     files = [file for file in files if os.path.isfile(os.path.join(path, file))]
-#     dates = [date[:10] for date in files]
-#
-#     for date, file in zip(dates, files):
-#         data, t, y = read_json(date, rate, du)
-#         try:
-#             curve, status = calibrate_nss_ols(t=t, y=y)
-#         except Exception as e:
-#             print(f'\n\n{date} | {rate} | {du}: {e}\n\n')
-#             curve = None
-#
-#         if curve:
-#             plot_curve(curve, y, t, output_name=f'{date}_nss_{rate}_{du}', date=date, rate=rate)
-#
-#             params = {
-#                 'b0': float(curve.beta0),
-#                 'b1': float(curve.beta1),
-#                 'b2': float(curve.beta2),
-#                 'b3': float(curve.beta3),
-#                 't1': float(curve.tau1),
-#                 't2': float(curve.tau2),
-#             }
-#             yield_parameters[date] = params
-#
-#             root_path = f"data/yield/nss/{rate}/{du}/"
-#             file_path = f"{date}_{rate}_{du}.json"
-#
-#
-#             with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
-#                 json.dump(params, json_file, ensure_ascii=False, indent=4)
-#                 print(f'Saved at: {(root_path + file_path).lower()}')
-#
-#             print(f' - {date}: done!')
-#
-#     root_path = f"data/yield/"
-#     file_path = f"{rate}_{du}.json"
-#
-#     with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
-#         json.dump(yield_parameters, json_file, ensure_ascii=False, indent=4)
-#         print(f'Saved at: {(root_path + file_path).lower()}')
-#
-#     return yield_parameters
-#
-# yield_1 = fit_yield('pre', 'du')
-#
+def fit_yield(rate, du):
+    yield_parameters = {}
+
+    path = f'data/bmf/{rate.lower()}/{du}/'
+    files = os.listdir(path)
+    files = [file for file in files if os.path.isfile(os.path.join(path, file))]
+    dates = [date[:10] for date in files]
+
+    for date, file in zip(dates, files):
+        data, t, y = read_json(date, rate, du)
+        try:
+            curve, status = calibrate_nss_ols(t=t, y=y)
+        except Exception as e:
+            print(f'\n\n{date} | {rate} | {du}: {e}\n\n')
+            curve = None
+
+        if curve:
+
+            plot_curve(curve, y, t, output_name=f'{date}_nss_{rate}_{du}', date=date, rate=rate)
+
+            params = {
+                'b0': float(curve.beta0),
+                'b1': float(curve.beta1),
+                'b2': float(curve.beta2),
+                'b3': float(curve.beta3),
+                't1': float(curve.tau1),
+                't2': float(curve.tau2),
+            }
+            yield_parameters[date] = params
+
+            root_path = f"data/yield/nss/{rate}/{du}/"
+            file_path = f"{date}_{rate}_{du}.json"
+
+
+            with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
+                json.dump(params, json_file, ensure_ascii=False, indent=4)
+                print(f'Saved at: {(root_path + file_path).lower()}')
+
+            print(f' - {date}: done!')
+
+    root_path = f"data/yield/"
+    file_path = f"{rate}_{du}.json"
+
+    with open((root_path + file_path).lower(), 'w', encoding='utf-8') as json_file:
+        json.dump(yield_parameters, json_file, ensure_ascii=False, indent=4)
+        print(f'Saved at: {(root_path + file_path).lower()}')
+
+    return yield_parameters
+
+yield_1 = fit_yield('pre', 'du')
+
 #
 # path_bmf = f'data/bmf/pre/du/'
 # files_bmf = os.listdir(path_bmf)
@@ -112,10 +113,10 @@ for date in dates:
     data, t, y = read_json(date, rate, du)
 
     curve, status = calibrate_nss_ols(t=t, y=y)# tau0=(1.0, 1.0))
-    # print(f"\n----------\n DEFAULT {date}\nb0: {curve.beta0}\nb1: {curve.beta1}\nb2: {curve.beta2}\nb0: {curve.beta3}")
+    print(f"\n----------\n DEFAULT {date}\nb0: {curve.beta0}\nb1: {curve.beta1}\nb2: {curve.beta2}\nb0: {curve.beta3}")
     plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}_nss__', date=date, rate=rate)
 
-    curve, status = calibrate_nss_ols(t=t, y=y, tau0=(0.010108, 0.011155))
-    print(f"\n----------\n ONE O ONE{date}\nb0: {curve.beta0}\nb1: {curve.beta1}\nb2: {curve.beta2}\nb0: {curve.beta3}")
-    plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}_nss_11', date=date, rate=rate)
-
+    # curve, status = calibrate_nss_ols(t=t, y=y, tau0=(0.010108, 0.011155))
+    # print(f"\n----------\n ONE O ONE{date}\nb0: {curve.beta0}\nb1: {curve.beta1}\nb2: {curve.beta2}\nb0: {curve.beta3}")
+    # plot_curve(curve, y, t, output_name=f'{date}_{rate}_{du}_nss_11', date=date, rate=rate)
+    #
