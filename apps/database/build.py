@@ -42,7 +42,7 @@ def fit_yield(rate, du):
     path = f'data/bmf/{rate.lower()}/{du}/'
     files = os.listdir(path)
     files = [file for file in files if os.path.isfile(os.path.join(path, file))]
-    cutoff_date = '2000-05-27'
+    cutoff_date = '2005-06-26'
     dates = [date[:10] for date in files if date[:10] >= cutoff_date]
 
     for date, file in zip(dates, files):
@@ -67,17 +67,17 @@ def fit_yield(rate, du):
             'Powell',
             'CG',
             'BFGS',
-            'Newton-CG',
+            # 'Newton-CG',
             'L-BFGS-B',
             'TNC',
             'COBYLA',
             'COBYQA',
             'SLSQP',
             'trust-constr',
-            'dogleg',
-            'trust-ncg',
-            'trust-exact',
-            'trust-krylov',
+            # 'dogleg',
+            # 'trust-ncg',
+            # 'trust-exact',
+            # 'trust-krylov',
         ]
 
         best_curve, best_status, best_error = None, None, 1000000
