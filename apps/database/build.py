@@ -133,21 +133,22 @@ def fit_yield(rate, du):
 
 rate = 'pre'
 du = 'du'
-yield_1 = fit_yield(rate, du)
+# yield_1 = fit_yield(rate, du)
 
-path = f"data/yield/nss/{rate}/{du}_fixed/"
+path = f"./data/yield/nss/{rate}/{du}_comparative"
 files = os.listdir(path)
 files = [file for file in files if os.path.isfile(os.path.join(path, file))]
 
-df_list = []
+df_list = {}
 for file in files:
     file_path = os.path.join(path, file)
     with open(file_path, "r") as f:
-        data = json.load(f)  # Load the JSON file
-        df_list.append(pd.DataFrame([data]))  # Convert to DataFrame and append
+        data = json.load(f)
+        print(data)
+        df_list[file[:10]]  = data  # Convert to DataFrame and append
 
-df = pd.concat(df_list, ignore_index=True)
-df.to_csv('nss_parameters_comparative.csv')
+# df = pd.concat(df_list, ignore_index=True)
+pd.DataFrame(df_list).to_csv('nss_parameters_comparative.csv')
 # %% Testes
 
 dates = ['2022-04-11']
