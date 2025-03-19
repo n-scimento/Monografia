@@ -30,7 +30,7 @@ def fit_yield(rate, du):
     path = f'data/bmf/{rate.lower()}/{du}/'
     files = os.listdir(path)
     files = [file for file in files if os.path.isfile(os.path.join(path, file))]
-    cutoff_date = '2018-09-26'
+    cutoff_date = '2009-05-27'
     dates = [date[:10] for date in files if date[:10] >= cutoff_date]
 
     for date, file in zip(dates, files):
@@ -38,8 +38,11 @@ def fit_yield(rate, du):
 
         print(f'\n-------\n{date}\n-------------------------------')
 
-        def try_calibrate(method, t, y):
-            curve, status = calibrate_nss_ols(t=t, y=y, method=method)
+        def try_calibrate(method, t, y, start=None):
+            if not start:
+                curve, status = calibrate_nss_ols(t=t, y=y, method=method)
+            else:
+                curve, status = calibrate_nss_ols(t=t, y=y, method=method, tau0=start)
             if any(beta > 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]):
                 print(f"-- Parameters too high with {method}, ignoring this method: {curve}")
                 return None, None, 1000000
@@ -59,7 +62,21 @@ def fit_yield(rate, du):
                 print(f"-- {method} failed due to LinAlgError, skipping this method.")
 
         if best_curve is None:
-            raise ValueError("All methods failed or had invalid parameters.")
+
+            for method in methods:
+
+                try:
+
+                    curve, status, error = try_calibrate(method, t, y, start=(1.0, 1.0))
+                    if curve is not None and error < best_error:
+                        best_curve, best_status, best_error = curve, status, error
+
+                except np.linalg.LinAlgError:
+                    print(f"-- {method} failed due to LinAlgError, skipping this method.")
+
+                if best_curve is None:
+                    raise ValueError("All methods failed or had invalid parameters.")
+
 
         curve = best_curve
         # def try_calibrate(method, t, y):
