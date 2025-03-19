@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_curve(curve, y, t, date, rate, output_name='plot', folder='plots_comparative'):
+def plot_curve(curve, y, t, date, rate, output_name='plot', folder='plots'):
     if rate == 'pre':
         rate = 'DI x Pré'
     elif rate == 'dic':
