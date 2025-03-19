@@ -42,7 +42,7 @@ def fit_yield(rate, du):
     path = f'data/bmf/{rate.lower()}/{du}/'
     files = os.listdir(path)
     files = [file for file in files if os.path.isfile(os.path.join(path, file))]
-    cutoff_date = '2005-06-26'
+    cutoff_date = '2000-12-12'
     dates = [date[:10] for date in files if date[:10] >= cutoff_date]
 
     for date, file in zip(dates, files):
@@ -56,7 +56,9 @@ def fit_yield(rate, du):
             else:
                 curve, status = calibrate_nss_ols(t=t, y=y, method=method, tau0=start)
 
-            if status.success and all(-1.0 <= beta <= 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]):
+            if status.success and all(
+                    -1.0 <= beta <= 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]) and all(
+                    -20.0 <= tau <= 20.0 for tau in [curve.tau1, curve.tau2]):
                 error = np.sum((curve(t) - y) ** 2)
                 return curve, status, error
             else:
@@ -67,17 +69,12 @@ def fit_yield(rate, du):
             'Powell',
             'CG',
             'BFGS',
-            # 'Newton-CG',
             'L-BFGS-B',
             'TNC',
             'COBYLA',
             'COBYQA',
             'SLSQP',
             'trust-constr',
-            # 'dogleg',
-            # 'trust-ncg',
-            # 'trust-exact',
-            # 'trust-krylov',
         ]
 
         best_curve, best_status, best_error = None, None, 1000000
@@ -93,14 +90,14 @@ def fit_yield(rate, du):
         if best_curve is None:
             for method in methods:
                 try:
-                    curve, status, error = try_calibrate(method, t, y, start=(1.0, 1.0))
+                    curve, status, error = try_calibrate(method, t, y, start=(2.0, 5.0))
                     if curve is not None and error < best_error:
                         best_curve, best_status, best_error = curve, status, error
                 except np.linalg.LinAlgError:
                     print(f"-- {method} failed due to LinAlgError, skipping this method.")
 
-                if best_curve is None:
-                    raise ValueError("All methods failed or had invalid parameters.")
+            if best_curve is None:
+                raise ValueError("All methods failed or had invalid parameters.")
 
         curve = best_curve
         # def try_calibrate(method, t, y):
@@ -177,10 +174,10 @@ pd.DataFrame(df_list).to_csv('nss_parameters_menos_e_mais.csv')
 # %% Testes
 
 
-#%%#
+# %%#
 rate = 'pre'
 du = 'du'
-date = '2005-01-19'
+date = '2005-01-07'
 data, t, y = read_json(date, rate, du)
 
 methods = [
@@ -201,9 +198,11 @@ methods = [
 ]
 for method in methods:
     try:
-        curve, status = calibrate_nss_ols(t=t, y=y, method=method, tau0=(1.0, 1.0))
+        curve, status = calibrate_nss_ols(t=t, y=y, method=method, tau0=(2.0, 5.0))
 
-        if status.success and all(-1.0 <= beta <= 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]):
+        if status.success and all(
+                -1.0 <= beta <= 1.0 for beta in [curve.beta0, curve.beta1, curve.beta2, curve.beta3]) and all(
+            -20.0 <= tau <= 20.0 for tau in [curve.tau1, curve.tau2]):
             plot_curve(curve, y, t, output_name=f'ERROR_FIXING_{date}_{rate}_{du}_nss_{method}_', date=date, rate=rate,
                        folder='menos_e_mais')
             print(f"\n----------\n{method}: {status.success}")
