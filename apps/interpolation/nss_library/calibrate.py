@@ -95,7 +95,7 @@ def errorfn_nss_ols(tau: Tuple[float, float], t: np.ndarray, y: np.ndarray) -> f
 
 
 def calibrate_nss_ols(
-    t: np.ndarray, method,  y: np.ndarray, tau0: Tuple[float, float] = (0.5, 0.5)
+    t: np.ndarray, method,  y: np.ndarray, tau0: Tuple[float, float] = (2.0, 5.0)
 ) -> Tuple[NelsonSiegelSvenssonCurve, Any]:
     """Calibrate a Nelson-Siegel-Svensson curve to time-value
     pairs t and y, by optimizing tau1 and tau2 and chosing
