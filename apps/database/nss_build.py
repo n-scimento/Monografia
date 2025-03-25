@@ -1,6 +1,7 @@
 import numpy as np
 from nelson_siegel_svensson.calibrate import betas_nss_ols
 from apps.interpolation.nss_library.calibrate import calibrate_nss_ols
+from apps.interpolation.nss_library.nss import NelsonSiegelSvenssonCurve
 import json
 import os
 import pandas as pd
@@ -127,7 +128,7 @@ def fit_yield(rate, du):
 
 rate = 'pre'
 du = 'du'
-yield_1 = fit_yield(rate, du)
+# yield_1 = fit_yield(rate, du)
 
 path = f"./data/yield/nss/{rate}/{du}"
 files = os.listdir(path)
@@ -138,10 +139,45 @@ for file in files:
     file_path = os.path.join(path, file)
     with open(file_path, "r") as f:
         data = json.load(f)
-        print(data)
         df_list[file[:10]] = data  # Convert to DataFrame and append
 
 pd.DataFrame(df_list).to_csv('nss_parameters.csv')
+
+
+#%%# MQO: load observations, load
+rate = 'pre'
+du = 'du'
+
+path_nss = f"./data/yield/nss/{rate}/{du}"
+files_nss = os.listdir(path_nss)
+files_nss = [file for file in files_nss if os.path.isfile(os.path.join(path, file))]
+df_list = {}
+
+path_bmf = f'data/bmf/{rate.lower()}/{du}/'
+files_bmf = os.listdir(path_bmf)
+files_bmf = [file for file in files_bmf if os.path.isfile(os.path.join(path, file))]
+
+for date, file in zip(files_bmf, files_nss):
+
+    file_path = os.path.join(path, file)
+    data, t, y = read_json(date, rate, du)
+
+    with open(file_path, "r") as f:
+        data = json.load(f)
+        df_list[file[:10]] = data  # Convert to DataFrame and append
+
+pd.DataFrame(df_list).to_csv('nss_parameters.csv')
+
+yield_parameters = {}
+
+path = f'data/bmf/{rate.lower()}/{du}/'
+files = os.listdir(path)
+files = [file for file in files if os.path.isfile(os.path.join(path, file))]
+cutoff_date = '2000-12-12'
+dates = [date[:10] for date in files if date[:10] >= cutoff_date]
+
+for date, file in zip(dates, files):
+    data, t, y = read_json(date, rate, du)
 
 # %%#
 rate = 'pre'
