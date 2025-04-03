@@ -72,7 +72,7 @@ class BCB:
         df_raw = pd.DataFrame(requests.get(url).json()['value'])
 
         print(f'- Baixado: {name}\n- Salvando: {name}')
-        df_raw.to_csv(f'./Data/BCB/{name}_raw.csv')
+        df_raw.to_csv(f'data/bcb/{name}_raw.csv')
 
         print(f'- Formatando: {name}')
 
@@ -89,7 +89,7 @@ class BCB:
         df.index = pd.to_datetime(df.index)
 
         print(f'- Salvando formatado: {name}')
-        df.to_csv(f'./Data/BCB/{name}.csv')
+        df.to_csv(f'data/bcb/{name}.csv')
 
         return df
 
