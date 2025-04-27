@@ -1,0 +1,19 @@
+# Svensson (1994)
+
+Citar que sua preocupação principal não era necessariamente estender o método, mas estudar a relação e acabou fazendo isso no caminho.
+
+- Forward rates are estimated with an extended and more flexible version of Nelson adn Siegel's functional form
+
+- The purpuse of this paper is to demonstrate the use of forward interest rates as a monetary policy indicator. Forward interest rate are interest rates on investment and loans that start at a future date, the settlement date, and last to a date further into the future, the maturity date. 
+
+- 'In the absence of explicit forward markets, implied forward itnerest rates have to be estimated from interest rates on existing financial instruments
+
+- The cubic spline has the well-known disadvantage that estimates of forward rates may be rather unstable, especially at the longest maturity
+
+- Nelson and Siegel assume that the instantaneous forward rate is the solution to a second-order differential equation with two equal roots
+
+- To increase the flexibility and improve the fit I nextend Nelson and Siegel's function by adding a fourth term, a second hump-shape with two additional parameters
+
+- The parameters are then chosen so as to minimize the sum of squared errors between the estimated and observed prices of the bonds
+
+- Minimizing price errors sometimes results in fairly large yield errors for bonds and bills with short maturities. This is because prices are very insensitive to yields for short maturities.
