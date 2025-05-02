@@ -34,7 +34,7 @@ library(lmtest)
 library(FinTS)
 library(urca)
 
-### Parte 1 - Univariada
+#%%# Parte 1 - Univariada
 
 ## Questão 1
 # A série não apresenta duplos registros nem erros tipográficos, mas possui outliers.
@@ -320,7 +320,7 @@ comparacao$PerdaEstimada <- comparacao$Diferenca * salario_minimo_real
 perda_total_estimada <- sum(comparacao$PerdaEstimada, na.rm = TRUE)
 print(paste("Perda real estimada devido à queda do número de ocupações em 2020: R$", abs(round(perda_total_estimada, 2))))
 
-### Parte 2 - Multivariada
+#%%#  Parte 2 - Multivariada
 
 ## Questão 1 - Preparação e Análise de Dados
 df <- read.csv("https://raw.githubusercontent.com/enricoruggieri/econometria/main/dados_trabalho_econometria.csv", row.names = 1, check.names = FALSE)
