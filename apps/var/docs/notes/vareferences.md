@@ -41,6 +41,27 @@ My goal in the research is to understand the impact of expectations in market mo
 
 ---
 
+### Análise dos determinantes macroeconômicos da relação entre inflação implícita e prêmio de inflação no Brasil
+- Filename: dissertacao_thiago
+- Source: http://hdl.handle.net/10438/20369)
+
+**Tem todas as tabelas com os testes no final, ótimo**
+
+> As curvas foram construídas a partir dos valores de mercado dos títulos públicos e metodologia usada pela ANBIMA a partir do modelo de Svensson (1994), a partir da qual foi calculada uma curva de inflações implícitas de onde se obtiveram os prêmios de inflação em relação à mediana das projeções de inflação do relatório de expectativas de mercado do Banco Central do Brasil (Relatório FOCUS) [...] onde foi possível a construção de uma base histórica que seria utilizada para a criação de simulações VAR para se estabelecer as relações das inflações implícitas e prêmios de inflação com as demais variáveis de mercado escolhidas
+    - apenas mais um exemplo, não parece utilizar as variáveis de expe tativa
+
+> O modelo VAR (Vector Autoregressive Model) é uma generalização do modelo autoregressivo univariado, permitindo a relação intertemporal entre mais de uma variável, sem prévio conhecimento sobre suas endogeneidades.
+
+
+> Através dos modelos, analisaremos as respostas geradas pelos impulsos das variáveis taxa Selic, juros nominais, taxa de câmbio e CDS Brasil sobre as inflações implícitas e seus prêmios para cada vértice escolhido, com o objetivo de identificar as variáveis que possuem maior impacto nas precificações das inflações implícitas pelo mercado, para horizontes mais longos e mais curtos.
+
+- Estacionaridade via ADF: precisou colocar em primeira diferente
+
+- Defasagem: de sempre
+
+- **Ordenamento das variáveis**: ordenado pela ordem decrescente de exogeneidade definido pelo teste de Granger; verificar a endogeneidade do modelo utilizado por ele e citar no meu trabalho
+
+---
 
 ### Central bank’s perception on inflation and inflation expectations of experts
 
@@ -99,24 +120,29 @@ My goal in the research is to understand the impact of expectations in market mo
 - Filename: LucasAMariani
 - Source: https://doi.org/10.11606/D.96.2015.tde-07042015-141933
 
+#### Reading
+> Usando o critério de informação de Schwarz vemos que tanto para os modelos completos e como para os restritos sem algumas variáveis endógenas, em geral, o modelo com uma defasagem é es- colhido. Apesar de outros testes indicarem mais defasagens para as variáveis endógenas escolhemos essa especificação pois ela é mais parcimoniosa e deve gerar previsões fora da amostra melhores.
+
+- Fica calculando erro quadrado médio repetidamente para encontrar o modelo mais parcimonioso - o que não é necessariamente o objetivo de um VAR
 ---
 
 ### Inflação implícita e o prêmio pelo risco: uma alternativa aos modelos VAR na previsão para o IPCA
 - Filename: Fulraninflacao
 - Source: https://doi.org/10.1590/S0101-41612013000400001
 
+É um bom estudo para comparar com meus resultados, mas nenhum VAR é efetivamente estimado. 
+
+> O presente artigo avalia, para o caso brasileiro, se a inflação implícita extraída dos títulos de renda fixa constitui um estimador não viesado da inflação ao consumidor, medida pelo IPCA.
+
+> As previsões realizadas com as BEIRs mostraram maior acurácia que aquelas extraídas dos modelos VAR, porém, menos precisas que as geradas pelos Top5
+
+> o Banco Central do Brasil, assim como grande parte de seus pares internacionais, utiliza em larga escala os modelos VAR para análise e previsão de inflação [...] Além disso, os modelos VAR impõem
+poucas restrições à estrutura da economia. Estas escolhas se resumem, basicamente, à escolha das variáveis e das defasagens. Todo o resto é determinado pelo próprio modelo. Esta é uma característica desejável em um tipo de exercício como o proposto nesta seção, pois reduz o grau de subjetividade da análise.
+
+> Os modelos VAR do BCB, basicamente, estão divididos em dois grandes grupos: modelos com fundamentação econômica e modelos puramente estatísticos
 ---
 
-### Análise dos determinantes macroeconômicos da relação entre inflação implícita e prêmio de inflação no Brasil
-- Filename: dissertacao_thiago
-- Source: http://hdl.handle.net/10438/20369)
 
-> As curvas foram construídas a partir dos valores de mercado dos títulos públicos e metodologia usada pela ANBIMA a partir do modelo de Svensson (1994), a partir da qual foi calculada uma curva de inflações implícitas de onde se obtiveram os prêmios de inflação em relação à mediana das projeções de inflação do relatório de expectativas de mercado do Banco Central do Brasil (Relatório FOCUS) [...] onde foi possível a construção de uma base histórica que seria utilizada para a criação de simulações VAR para se estabelecer as relações das inflações implícitas e prêmios de inflação com as demais variáveis de mercado escolhidas
-    - apenas mais um exemplo, não parece utilizar as variáveis de expe tativa
-
-#### Reading
-
----
 
 ### What drives inflation expectations in Brazil? An empirical analysis
 - Filename: cerisola
