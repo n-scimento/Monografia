@@ -140,9 +140,8 @@ My goal in the research is to understand the impact of expectations in market mo
 poucas restrições à estrutura da economia. Estas escolhas se resumem, basicamente, à escolha das variáveis e das defasagens. Todo o resto é determinado pelo próprio modelo. Esta é uma característica desejável em um tipo de exercício como o proposto nesta seção, pois reduz o grau de subjetividade da análise.
 
 > Os modelos VAR do BCB, basicamente, estão divididos em dois grandes grupos: modelos com fundamentação econômica e modelos puramente estatísticos
+
 ---
-
-
 
 ### What drives inflation expectations in Brazil? An empirical analysis
 - Filename: cerisola
@@ -150,7 +149,7 @@ poucas restrições à estrutura da economia. Estas escolhas se resumem, basicam
 
 - A VEC (a specific VAR for non-stationary but cointegrated variables) is estimated and some procedures are alike 
 
-#### Reading
+> The inflation-targeting framework has helped anchor expectations, with the dispersion of inflation expectations declining considerably, particularly during periods of high uncertainty.
 
 ---
 
@@ -160,7 +159,7 @@ poucas restrições à estrutura da economia. Estas escolhas se resumem, basicam
 
 - Discute bastante sobre o uso de VAR, não necessariamente no que preciso, mas me parece bem útil
 
-#### Reading
+> Unlike existing SVARs that either force the system to be recursive (or ordered) or impose restrictions based on the signs or long-run properties of impulse responses, we propose that the VAR be structured by reference to some skeletal model that has a theoretical base \[DSGE\].
 
 ---
 
@@ -170,7 +169,8 @@ poucas restrições à estrutura da economia. Estas escolhas se resumem, basicam
 
 > This box presents a VAR model that allows the anchoring of its long‑term projection in the expectations of Focus survey, thus incorporating important recent changes in the Brazilian economy."
 
-#### Reading
+> [...] applying the Akaike information criterion (AIC) to decide whether a regressor should be retained.
+
 
 ---
 
@@ -180,6 +180,16 @@ poucas restrições à estrutura da economia. Estas escolhas se resumem, basicam
 - Source: https://www.portaldeperiodicos.idp.edu.br/redea/article/view/7100
 
 > Modelos VAR são utilizados como ferramenta para esta investigação. Analisou-se a função impulso-resposta das expectativas aos choques na Selic e a decomposição da variância dos erros
+
+> Segundo BCB, os modelos VAR são utilizados pelo Banco Central do Brasil e a maioria dos bancos centrais pelo mundo como ferramenta de análise e previsão de inflação, desde a implementação do sistema de metas para a inflação.
+
+> Tem um número considerável de referências que podem ser úteis
+
+- A plataforma não tem a inflação 24 meses a frente 
+
+- **1. Lags**: AIC, SC, HQ (uma como mais adequado, padronizado com "Sartoris"
+
+- **2. Estacionaridade**: ADF
 
 ---
 

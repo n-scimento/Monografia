@@ -9,3 +9,7 @@ Tem ajuste sazonal em VAR, ver como fazer
 Grange Causality Test
 
 Ordenação (Cholesky): Juros, Inflação, Câmbio e PIB
+
+CERTIFICAR ME DE QUE A SÉRIE DE PIB DO BC JA TEM AJUSTE SAZONAL
+
+Descrever bonitinho quem foram os informantes, origem, se teve algum tratamento do BC etc etc etc
