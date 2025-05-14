@@ -18,7 +18,39 @@ df$Date <- as.Date(df$Date, format = "%Y-%m-%d")
 df_xts <- xts(df[ , -which(names(df) == "Date")], order.by = df$Date)
 # bring down last obs when Null and so I can have all the days
 
-var_data <- df_xts[, c("beta1", "ipca-12", "selic_anual_1y")]
+var_data <- df_xts[, c(
+    
+"beta1", 
+"beta2", 
+"beta3", 
+"beta4", 
+"tau1",
+"tau2",
+
+"ipca-anual-current",
+"ipca-anual-1y",
+"ipca-anual-2y", 
+"ipca-anual-3y",
+
+"selic-anual-current",
+"selic-anual-1y",
+"selic-anual-2y", 
+"selic-anual-3y",
+
+"usd-anual-current",
+"usd-anual-1y",
+"usd-anual-2y", 
+"usd-anual-3y",
+
+"pib-anual-current",
+"pib-anual-1y",
+"pib-anual-2y", 
+"pib-anual-3y",
+
+)]
+
+
+
 var_data_clean <- na.omit(var_data)
 
 lag_selection <- VARselect(var_data_clean, lag.max = 12, type = "const")
