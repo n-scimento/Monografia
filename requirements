@@ -7,3 +7,4 @@ matplotlib
 openpyxl
 nelson-siegel-svensson
 opencv-python
+jinja2

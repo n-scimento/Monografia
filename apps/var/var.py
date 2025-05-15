@@ -2,6 +2,7 @@
 import os
 
 os.system('pip install openpyxl')
+os.system('pip install jinja2')
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
@@ -64,7 +65,7 @@ plt.suptitle("Parâmetros Nelson-Siegel-Svensson", fontsize=14)
 
 # Save to file
 output_path = os.path.join("plots_new", "nss-series.png")
-plt.savefig(output_path)
+plt.savefig(output_path, dpi=300)
 plt.close()
 
 #%%# Histogram
@@ -91,7 +92,7 @@ plt.suptitle("Distribuição dos parâmetros Nelson-Siegel-Svensson", fontsize=1
 
 # Save to file
 output_path = os.path.join("plots_new", "nss-histograms.png")
-plt.savefig(output_path)
+plt.savefig(output_path, dpi=300)
 plt.close()
 
 # %%# Plot FOCUS
@@ -158,5 +159,29 @@ plt.suptitle("Expectativas Econômicas - FOCUS", fontsize=14)
 
 # Salvar a figura única
 output_path = os.path.join("plots_new", "focus.png")
-plt.savefig(output_path)
+plt.savefig(output_path, dpi=300)
 plt.close()
+
+
+#%%# Tabela estats
+summary_stats = df[scatter_cols].agg(['mean', 'std', 'median', 'min', 'max']).T
+summary_stats = summary_stats.rename(columns={
+    'mean': 'Média',
+    'std': 'Desvio Padrão',
+    'median': 'Mediana',
+    'min': 'Mínimo',
+    'max': 'Máximo'
+})
+
+# Exibir ou salvar como CSV
+print(summary_stats)
+
+# Salvar como CSV
+summary_stats.to_csv(os.path.join("plots_new", "nss_summary_stats.csv"))
+
+summary_stats = summary_stats.round(4)
+
+# Exportar como LaTeX
+latex_output_path = os.path.join("plots_new", "nss_summary_stats.tex")
+with open(latex_output_path, "w") as f:
+    f.write(summary_stats.to_latex(index=True, caption="Estatísticas descritivas dos parâmetros NSS", label="tab:nss_stats", column_format="lccccc"))
