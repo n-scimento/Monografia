@@ -1,11 +1,13 @@
 # %%# Libraries
 import os
+
 os.system('pip install openpyxl')
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
 import os
 import re
+import numpy as np
 
 # %%# Loading Data
 variables_list = ["beta1", "beta2", "beta3", "beta4", "tau1", "tau2",
@@ -35,70 +37,126 @@ df.columns = [rename_column(col) for col in df.columns]
 cols_excluidas = ['beta1', 'beta2', 'beta3', 'beta4', 'tau1', 'tau2']
 df.loc[:, ~df.columns.isin(cols_excluidas)] = df.loc[:, ~df.columns.isin(cols_excluidas)].mask(df == 0).ffill()
 
-# %%# Plotting
-# Definindo os grupos
+
+# %%# Plot NSS
+scatter_cols = ['beta1', 'beta2', 'beta3', 'beta4', 'tau1', 'tau2']
+
+n_plots = len(scatter_cols)
+n_cols = 3  # Number of columns in subplot grid
+n_rows = (n_plots + n_cols - 1) // n_cols
+
+# Create figure and subplots
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 4 * n_rows), squeeze=False)
+axes = axes.flatten()
+
+for i, col in enumerate(scatter_cols):
+    ax = axes[i]
+    ax.scatter(df.index, df[col], alpha=0.5, s=4, color='#08306b', edgecolor='#08306b')
+    ax.set_title(col)
+    ax.grid(True)
+
+# Remove unused axes
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.suptitle("Parâmetros Nelson-Siegel-Svensson", fontsize=14)
+
+# Save to file
+output_path = os.path.join("plots_new", "nss-series.png")
+plt.savefig(output_path)
+plt.close()
+
+#%%# Histogram
+n_plots = len(scatter_cols)
+n_cols = 3  # Number of columns in subplot grid
+n_rows = (n_plots + n_cols - 1) // n_cols
+
+# Create figure and subplots
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 4 * n_rows), squeeze=False)
+axes = axes.flatten()
+
+for i, col in enumerate(scatter_cols):
+    ax = axes[i]
+    ax.hist(df[col].dropna(), bins=30, color='#08306b', edgecolor='#051a3a', alpha=1)
+    ax.set_title(f"{col}")
+    ax.grid(True)
+
+# Remove unused axes
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.suptitle("Distribuição dos parâmetros Nelson-Siegel-Svensson", fontsize=14)
+
+# Save to file
+output_path = os.path.join("plots_new", "nss-histograms.png")
+plt.savefig(output_path)
+plt.close()
+
+# %%# Plot FOCUS
+
 groups = {
-    'Nelson-Siegel Factors': {
-        'cols': ["beta1", "beta2", "beta3", "beta4", "tau1", "tau2"],
-        'y_label': 'Fatores de Nelson-Siegel',
-        'line_color': 'Blues',  # Definir a cor do degradê
-        'subtitle': 'Fatores modelados de acordo com a curva de rendimento',
-        'marker': 'o',  # Bolinhas para a série temporal
-    },
     'Expectativas IPCA': {
         'cols': [col for col in df.columns if col.startswith("ipca")],
-        'y_label': 'Expectativas IPCA',
-        'line_color': 'Greens',
-        'subtitle': 'Expectativas para a inflação do IPCA',
-        'marker': '-'  # Linha contínua
+        'title': 'IPCA',
+        'y_label': 'Variação %',
     },
     'Expectativas SELIC': {
         'cols': [col for col in df.columns if col.startswith("selic")],
-        'y_label': 'Expectativas SELIC',
-        'line_color': 'Reds',
-        'subtitle': 'Expectativas para a taxa de juros SELIC',
-        'marker': '-'  # Linha contínua
+        'title': 'SELIC',
+        'y_label': '% a.a.',
     },
     'Expectativas USD': {
         'cols': [col for col in df.columns if col.startswith("usd")],
-        'y_label': 'Expectativas USD',
-        'line_color': 'Oranges',
-        'subtitle': 'Expectativas para o valor do USD',
-        'marker': '-'  # Linha contínua
+        'title': 'Câmbio',
+        'y_label': 'BRL/USD',
     },
     'Expectativas PIB': {
         'cols': [col for col in df.columns if col.startswith("pib")],
-        'y_label': 'Expectativas PIB',
-        'line_color': 'Purples',
-        'subtitle': 'Expectativas para o Produto Interno Bruto',
-        'marker': '-'  # Linha contínua
+        'title': 'PIB',
+        'y_label': 'Variação % sobre ano anterior',
     },
 }
 
-# Função para plotar e salvar cada grupo
-for group_name, attributes in groups.items():
-    ax = plt.gca()  # Obter o eixo para customização
+n_groups = len(groups)
+n_cols = 2  # Número de colunas de subplots
+n_rows = (n_groups + n_cols - 1) // n_cols  # Número de linhas necessário
 
-    # Se for o grupo 'Nelson-Siegel Factors', usar bolinhas
-    if group_name == 'Nelson-Siegel Factors':
-        for i, col in enumerate(attributes['cols']):
-            ax.plot(df.index, df[col], marker=attributes['marker'], color=plt.cm.Blues(i / len(attributes['cols'])), label=col)
-    else:
-        # Caso contrário, fazer um degradê nas séries
-        for i, col in enumerate(attributes['cols']):
-            ax.plot(df.index, df[col], color=plt.cm.get_cmap(attributes['line_color'])(i / len(attributes['cols'])), label=col)
+# Criar figura e eixos
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(14, 4 * n_rows), squeeze=False)
+axes = axes.flatten()  # Flatten axes para acesso mais fácil
 
-    plt.xlabel('Data')
-    plt.ylabel(attributes['y_label'])  # Eixo Y personalizado
-    plt.grid(True)
-    plt.legend(loc='best')
-    plt.tight_layout()
+# Iterar pelos grupos e eixos
+for idx, (group_name, attributes) in enumerate(groups.items()):
+    ax = axes[idx]
+    n_colors = len(attributes['cols'])
+    color_range = np.linspace(0.3, 1.0, n_colors)  # Evita tons muito claros/escuros
+    cmap = plt.colormaps['Blues']  # Forma moderna de acessar colormap
 
-    # Adicionar subtítulo
-    plt.figtext(0.5, 0.95, attributes['subtitle'], ha='center', va='top', fontsize=10, color='black')
+    for i, (col, cval) in enumerate(zip(reversed(attributes['cols']), color_range)):
+        color = cmap(cval)
+        ax.plot(
+            df.index,
+            df[col],
+            color=color,
+            label=col,
+            linestyle='-'
+        )
 
-    # Sanitize filename
-    filename = group_name.lower().replace(" ", "_").replace("(", "").replace(")", "") + ".png"
-    filepath = os.path.join("plots_new", filename)
-    plt.savefig(filepath)
-    plt.close()
+    ax.set_title(attributes['title'], fontsize=10)
+    ax.set_ylabel(attributes['y_label'])
+    ax.grid(True)
+    ax.legend(loc='best', fontsize=8)
+
+# Remover eixos extras (caso n_groups < n_rows * n_cols)
+for j in range(idx + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.suptitle("Expectativas Econômicas - FOCUS", fontsize=14)
+
+# Salvar a figura única
+output_path = os.path.join("plots_new", "focus.png")
+plt.savefig(output_path)
+plt.close()
